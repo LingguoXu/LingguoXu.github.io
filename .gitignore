@@ -1,0 +1,15 @@
+# macOS
+.DS_Store
+
+# JetBrains IDEs
+.idea/
+
+# VS Code
+.vscode/
+
+# Editor backups
+*.swp
+*~
+
+# Node (in case we ever add tooling)
+node_modules/
