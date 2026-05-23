@@ -71,6 +71,8 @@ h4 { font-size: 1.05rem; font-weight: 600; }
   font-family: var(--font-serif);
   font-size: 2.2rem; font-weight: 700;
   color: #fff; letter-spacing: -.02em;
+  object-fit: cover;
+  display: block;
 }
 
 .sb-name {
