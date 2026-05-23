@@ -61,6 +61,24 @@ h4 { font-size: 1.05rem; font-weight: 600; }
 .sidebar::-webkit-scrollbar { width: 4px; }
 .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 2px; }
 
+/* ── Construction banner ───────────────────────────────── */
+.construction-banner {
+  background: #fff8e6;
+  border: 1px solid var(--accent);
+  border-left: 4px solid var(--accent);
+  border-radius: 4px;
+  color: var(--text);
+  font-size: .85rem;
+  padding: .7rem 1.1rem;
+  margin: 1.5rem 1.75rem 0;
+  font-family: var(--font-sans);
+  line-height: 1.5;
+}
+.construction-banner strong {
+  color: #8a6722;
+  font-weight: 600;
+}
+
 .profile-avatar {
   width: 96px; height: 96px;
   border-radius: 50%;
