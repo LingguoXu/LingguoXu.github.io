@@ -508,9 +508,16 @@ h4 { font-size: 1.05rem; font-weight: 600; }
   font-size: 1rem;
 }
 .cv-entry { margin-bottom: 1.1rem; }
-.cv-entry-header { display: flex; justify-content: space-between; align-items: flex-start; }
-.cv-entry-title { font-weight: 600; font-size: .93rem; }
-.cv-entry-year { font-family: var(--font-mono); font-size: .78rem; color: var(--muted); flex-shrink: 0; margin-left: 1rem; }
+.cv-entry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  column-gap: 1rem;
+  row-gap: .1rem;
+}
+.cv-entry-title { font-weight: 600; font-size: .93rem; flex: 1 1 auto; min-width: 0; }
+.cv-entry-year { font-family: var(--font-mono); font-size: .78rem; color: var(--muted); flex-shrink: 0; margin-left: auto; }
 .cv-entry-org { color: var(--blue); font-size: .88rem; }
 .cv-entry-detail { font-size: .83rem; color: var(--muted); margin-top: .15rem; line-height: 1.5; }
 
