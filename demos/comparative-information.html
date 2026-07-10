@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comparative-Information Experiment — Interactive Demo — Lingguo (Lin) Xu</title>
+  <meta name="description" content="Playable demo of the lab experiment behind 'Gender and the Demand for Comparative Information' (Erkal, Koh & Xu). Full instruction sequence, practice round, incentivized beliefs, a noisy score, and the demand for rank information.">
+  <link rel="canonical" href="https://www.lingguoxu.com/demos/comparative-information.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Comparative-Information Experiment — Interactive Demo">
+  <meta property="og:description" content="Play a condensed replica of the lab experiment behind 'Gender and the Demand for Comparative Information' (Erkal, Koh &amp; Xu).">
+  <meta property="og:url" content="https://www.lingguoxu.com/demos/comparative-information.html">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;0,700;1,400&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --dark:    #0f1b2d;
+      --dark2:   #1a2e4a;
+      --accent:  #c4993a;
+      --blue:    #2d6cbe;
+      --bg:      #f8f7f3;
+      --bg2:     #eeecea;
+      --text:    #1a1a24;
+      --muted:   #64748b;
+      --border:  #ddd9d2;
+      --card:    #ffffff;
+      --font-serif: 'Crimson Pro', Georgia, serif;
+      --font-sans:  'IBM Plex Sans', system-ui, sans-serif;
+      --font-mono:  'IBM Plex Mono', monospace;
+      --ot-primary: #007bff;
+      --ot-success: #28a745;
+      --ot-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; }
+    body { background: var(--bg); color: var(--text); font-family: var(--font-sans); line-height: 1.6; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .topbar {
+      background: var(--dark); color: #fff;
+      padding: .8rem 1.4rem;
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    }
+    .topbar .back { color: rgba(255,255,255,.65); font-size: .82rem; white-space: nowrap; }
+    .topbar .back:hover { color: var(--accent); text-decoration: none; }
+    .topbar .tb-title { font-family: var(--font-serif); font-size: 1.05rem; font-weight: 600; flex: 1; min-width: 200px; }
+    .badge-replica {
+      font-family: var(--font-mono); font-size: .62rem; letter-spacing: .08em; text-transform: uppercase;
+      background: rgba(196,153,58,.18); border: 1px solid rgba(196,153,58,.55); color: var(--accent);
+      padding: .18rem .55rem; border-radius: 3px; white-space: nowrap;
+    }
+    .tb-btn {
+      font-family: var(--font-mono); font-size: .68rem; letter-spacing: .05em;
+      background: transparent; border: 1px solid rgba(255,255,255,.3); color: rgba(255,255,255,.75);
+      padding: .3rem .7rem; border-radius: 4px; cursor: pointer; white-space: nowrap;
+    }
+    .tb-btn:hover { border-color: var(--accent); color: #fff; }
+    .tb-btn .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #555; margin-right: .4rem; vertical-align: 1px; }
+    body.notes-on .tb-btn .dot { background: var(--accent); }
+
+    .wrap { max-width: 900px; margin: 0 auto; padding: 1.6rem 1.2rem 3rem; }
+
+    .rnote {
+      display: none;
+      background: #fdf8ec; border: 1px solid rgba(196,153,58,.45); border-left: 4px solid var(--accent);
+      border-radius: 4px; padding: .7rem .95rem; margin: 1.1rem 0 .2rem;
+      font-family: var(--font-sans); font-size: .82rem; color: #4a3f26; line-height: 1.55;
+    }
+    .rnote strong { color: #8a6722; font-weight: 600; }
+    .rnote .rn-tag {
+      font-family: var(--font-mono); font-size: .6rem; text-transform: uppercase; letter-spacing: .1em;
+      color: #8a6722; display: block; margin-bottom: .25rem;
+    }
+    body.notes-on .rnote { display: block; }
+
+    .demo-controls {
+      margin-top: .9rem; text-align: center;
+      font-family: var(--font-mono); font-size: .72rem; color: var(--muted);
+    }
+    .demo-controls button {
+      font-family: var(--font-mono); font-size: .72rem; color: var(--muted);
+      background: transparent; border: 1px dashed var(--border); border-radius: 4px;
+      padding: .25rem .7rem; cursor: pointer;
+    }
+    .demo-controls button:hover { color: var(--text); border-color: var(--muted); }
+
+    .stage {
+      background: var(--card); border: 1px solid var(--border); border-radius: 6px;
+      box-shadow: 0 2px 14px rgba(15,27,45,.07);
+      padding: 1.6rem 2rem 2rem;
+      font-family: var(--ot-font);
+      min-height: 380px;
+    }
+    .ot-timer { text-align: right; font-size: .8rem; color: #333; }
+    .ot-timer .t { font-weight: 600; font-variant-numeric: tabular-nums; }
+    .ot-title { text-align: center; font-size: 1.45rem; font-weight: 500; margin: .3rem 0 .6rem; line-height: 1.35; }
+    .ot-title small { display: block; font-size: .85rem; color: #444; margin-top: .2rem; }
+    .stage hr { border: none; border-top: 1px solid #ddd; margin: .8rem 0 1.2rem; }
+    .ot-body p { font-size: 1.02rem; margin-bottom: 1rem; color: #212529; }
+    .ot-body ol, .ot-body ul { font-size: 1.02rem; color: #212529; margin: 0 0 1rem 1.4rem; }
+    .ot-body li { margin-bottom: .5rem; }
+    .ot-body img { max-width: 100%; }
+    .btn { display: inline-block; border: none; border-radius: 4px; padding: .5rem 1.1rem; font-size: 1rem; cursor: pointer; font-family: inherit; }
+    .btn-primary { background: var(--ot-primary); color: #fff; }
+    .btn-primary:hover { background: #0069d9; }
+    .btn-success { background: var(--ot-success); color: #fff; }
+    .btn-success:hover { background: #218838; }
+    .btn[disabled] { opacity: .55; cursor: not-allowed; }
+    .btn-next-row { text-align: right; margin-top: 1.6rem; }
+    .btn-split { display: flex; justify-content: space-between; margin-top: 1.6rem; }
+    .center { text-align: center; }
+    .ot-input {
+      font-size: 1rem; padding: .45rem .6rem; border: 1px solid #ced4da; border-radius: 4px; width: 240px; max-width: 100%;
+      font-family: inherit;
+    }
+    select.ot-input { width: 260px; }
+    .ot-label { display: block; font-size: 1rem; margin-bottom: .35rem; color: #212529; }
+    .ot-error { color: #b02a37; font-size: .88rem; margin-top: .5rem; display: none; }
+    .ot-feedback { display: none; color: #b02a37; font-size: .95rem; margin-top: 1rem; line-height: 1.5; }
+    .ot-feedback.good { color: #212529; }
+    .tab { display: none; }
+
+    .puzzle-imgs { display: flex; gap: 1.2rem; align-items: center; flex-wrap: wrap; margin-bottom: 1rem; }
+    .puzzle-imgs .pz { flex: 1 1 280px; min-width: 240px; }
+    .puzzle-imgs .pz svg { width: 100%; height: auto; display: block; }
+    .pz-q { max-width: 320px; }
+    .pz-a { max-width: 420px; }
+
+    /* option buttons (confidence / preference / radio choices) */
+    .optgroup { display: flex; flex-wrap: wrap; gap: .7rem; justify-content: center; margin: .6rem 0 .4rem; }
+    .optbtn {
+      font-family: inherit; font-size: .88rem; line-height: 1.3;
+      background: #fff; color: #212529;
+      border: 1px solid #198754; border-radius: 5px;
+      padding: .55rem .9rem; cursor: pointer; text-align: center;
+    }
+    .optbtn:hover { background: #eaf6ef; }
+    .optbtn.sel { background: var(--ot-success); color: #fff; }
+    .optbtn.dis { background: #e9ecef; color: #6c757d; border-color: #adb5bd; cursor: not-allowed; pointer-events: none; }
+    .optbtn.neutral { border-color: #343a40; }
+    .optbtn.neutral.sel { background: #343a40; color: #fff; }
+
+    /* radio rows (comprehension / over-under) */
+    .radio-row { display: block; font-size: 1rem; margin: .5rem 0; padding: .5rem .7rem; border: 1px solid transparent; border-radius: 4px; cursor: pointer; }
+    .radio-row:hover { background: #f4f8ff; }
+    .radio-row input { margin-right: .6rem; transform: scale(1.2); }
+    .radio-row.sel { color: rgb(56,110,246); border: 1px solid rgb(56,110,246); background-color: rgb(226,233,253); }
+
+    /* rank sliders */
+    .rank-row { display: flex; align-items: center; gap: 1rem; margin: .65rem 0; flex-wrap: wrap; }
+    .rank-lab {
+      flex: 0 0 200px; font-size: .85rem; line-height: 1.3;
+      background: var(--ot-success); color: #fff; border-radius: 5px; padding: .45rem .6rem; text-align: left;
+    }
+    .rank-slide { flex: 1 1 260px; display: flex; align-items: center; gap: .6rem; }
+    .rank-slide input[type=range] { flex: 1; accent-color: #4CAF50; }
+    .rank-val { font-size: .95rem; font-weight: 600; width: 48px; text-align: right; font-variant-numeric: tabular-nums; }
+    .sum-line { text-align: center; font-size: 1rem; margin-top: .8rem; }
+    .sum-line b { font-variant-numeric: tabular-nums; }
+    .sum-err { color: #b02a37; display: none; text-align: center; margin-top: .4rem; }
+
+    .bignum { text-align: center; font-size: 3.2rem; font-weight: 700; margin: 1rem 0; }
+
+    .site-voice { font-family: var(--font-sans); }
+    .site-voice h1 { font-family: var(--font-serif); font-size: 2rem; font-weight: 700; margin-bottom: .6rem; color: var(--dark); }
+    .site-voice h2 { font-family: var(--font-serif); font-size: 1.35rem; font-weight: 600; margin: 1.4rem 0 .5rem; color: var(--dark); }
+    .site-voice p { font-size: .95rem; margin-bottom: .8rem; color: var(--text); }
+    .site-voice .eyebrow { font-family: var(--font-mono); font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-bottom: .5rem; }
+    .site-voice ul { margin: 0 0 .9rem 1.2rem; font-size: .92rem; }
+    .site-voice li { margin-bottom: .35rem; }
+    .btn-gold {
+      display: inline-block; background: var(--dark); color: #fff; border: none; border-radius: 4px;
+      font-family: var(--font-sans); font-size: .95rem; font-weight: 500;
+      padding: .6rem 1.5rem; cursor: pointer; text-decoration: none;
+    }
+    .btn-gold:hover { background: var(--dark2); }
+    .btn-outline {
+      display: inline-block; background: transparent; color: var(--dark); border: 1px solid var(--border); border-radius: 4px;
+      font-family: var(--font-sans); font-size: .88rem; padding: .55rem 1.2rem; cursor: pointer; text-decoration: none;
+    }
+    .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: .8rem; margin: 1rem 0 1.4rem; }
+    .stat { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: .7rem .9rem; }
+    .stat .k { font-family: var(--font-mono); font-size: .62rem; text-transform: uppercase; letter-spacing: .09em; color: var(--muted); margin-bottom: .2rem; }
+    .stat .v { font-family: var(--font-serif); font-size: 1.2rem; font-weight: 600; color: var(--dark); line-height: 1.3; }
+    .stat .v small { font-size: .78rem; font-family: var(--font-sans); font-weight: 400; color: var(--muted); }
+
+    .footer-note {
+      max-width: 900px; margin: 0 auto; padding: 0 1.2rem 2.5rem;
+      font-size: .78rem; color: var(--muted); text-align: center;
+    }
+    .screen { display: none; }
+    .screen.active { display: block; }
+    @media (max-width: 640px) {
+      .stage { padding: 1.1rem 1rem 1.4rem; }
+      .rank-lab { flex-basis: 100%; }
+    }
+  </style>
+</head>
+<body class="notes-on">
+
+  <div class="topbar">
+    <a class="back" href="../experiments.html">← Experiments</a>
+    <div class="tb-title">Comparative-Information Experiment — Interactive Demo</div>
+    <span class="badge-replica">Replica · no data collected</span>
+    <button class="tb-btn" id="notesToggle" type="button"><span class="dot"></span>Researcher notes: <span id="notesState">ON</span></button>
+    <button class="tb-btn" id="jumpDebrief" type="button">Skip to debrief ↦</button>
+  </div>
+
+  <div class="wrap">
+
+    <!-- ══ 0 · INTRO ══ -->
+    <section class="screen active site-voice" id="scr-intro">
+      <p class="eyebrow">// interactive demo · ~5 minutes</p>
+      <h1>Play the comparative-information experiment</h1>
+      <p>
+        This is a condensed, playable replica of the laboratory experiment in
+        <em>Gender and the Demand for Comparative Information</em> (with Nisvan Erkal and Boon Han Koh; revise &amp; resubmit at the
+        <em>Journal of Economic Psychology</em>). You will go through the screens participants saw: the task instructions and practice round,
+        the timed puzzle task, incentivized beliefs about your absolute and relative performance, a <em>deliberately noisy</em> score,
+        an interactive comprehension check — and then the paper's core decision: whether, and how much, to pay to learn how specific
+        groups of other participants performed.
+      </p>
+      <ul>
+        <li><strong>Condensed:</strong> 1 practice + 2 real puzzles instead of 3 + 30 (10 timed minutes in the lab), and one comprehension question of four.</li>
+        <li><strong>Faithful:</strong> instructions, elicitations, and payoff rules come verbatim from the original oTree code. The puzzles are look-alike items in the style of the task — the original 30 items and answer key stay unpublished so the task remains reusable.</li>
+        <li><strong>Private:</strong> everything runs in your browser — nothing you do here is recorded.</li>
+      </ul>
+      <p>
+        Like the real participants, you will be <strong>randomly assigned</strong> to one of the two information environments —
+        <em>non-instrumental</em> (the session ends after the feedback) or <em>instrumental</em> (you expect to do the task again).
+        Toggle <strong>Researcher notes</strong> (top right) to see what each screen measures, or <strong>Skip to debrief</strong> at any time.
+      </p>
+      <p style="margin-top:1.3rem;">
+        <button class="btn-gold" id="startBtn" type="button">Start the demo →</button>
+      </p>
+    </section>
+
+    <!-- ══ 1 · PART 1 INSTRUCTIONS (3 tabs) ══ -->
+    <section class="screen" id="scr-inst">
+      <div class="stage">
+        <div class="tab">
+          <div class="ot-title">Part 1 - Instructions (Page 1 of 3)</div>
+          <hr>
+          <div class="ot-body">
+            <p>In Part 1, you will be given 10 minutes to solve up to 30 puzzles.</p>
+            <p>A high level of effort, concentration, and attention to detail are likely to improve your performance in the task.</p>
+            <p>Numerous studies have shown that performance in solving similar types of puzzles is related to outcomes such as higher salaries,
+               better job positions, and higher life satisfaction (Gottfretson, 2003; Niesser et al., 1996; Strenze, 2007; Bergman, 2015).</p>
+            <p>On the next page, you will see an example.</p>
+          </div>
+          <div class="btn-next-row"><button class="btn btn-primary btn-tab" data-offset="1" type="button">Next</button></div>
+        </div>
+        <div class="tab">
+          <div class="ot-title">Part 1 - Instructions (Page 2 of 3)</div>
+          <hr>
+          <div class="ot-body">
+            <p>Consider the images below (on the left), which are arranged in a pattern.</p>
+            <p>You will need to identify the image from the solution set (on the right) that best fits the rest of the puzzle.</p>
+            <div class="puzzle-imgs">
+              <div class="pz pz-q" id="exQBox"></div>
+              <div class="pz pz-a" id="exABox"></div>
+            </div>
+            <p>In the example above, the correct answer would be "a".</p>
+            <p>In the puzzle, the fill of the square darkens across the columns while every image remains a square of the same size.
+               Hence, options "c", "e", and "f" are wrong because they are not squares, and options "b" and "d" are wrong because their
+               fill does not complete the pattern.</p>
+          </div>
+          <div class="btn-split">
+            <button class="btn btn-primary btn-tab" data-offset="-1" type="button">Previous</button>
+            <button class="btn btn-primary btn-tab" data-offset="1" type="button">Next</button>
+          </div>
+        </div>
+        <div class="tab">
+          <div class="ot-title">Part 1 - Instructions (Page 3 of 3)</div>
+          <hr>
+          <div class="ot-body">
+            <p>To submit your answer to each puzzle, you will need to type the letter corresponding to the option you have chosen in the box provided on the screen.
+               Then, click the button to submit your answer.</p>
+            <p>Once you submit your answer, you will not be permitted to change it.</p>
+            <p>Your earnings in this part of the experiment will depend on your performance in the task.
+               Specifically, you will receive <b>40 ECU</b> for every puzzle you solve correctly. Wrong answers will not affect your score.</p>
+            <p>Before we begin the task, you will participate in a practice round where you will be given three puzzles to solve.
+               There is no time limit in the practice round, and your performance in the practice round will not affect your earnings in this experiment.</p>
+            <p>Please click the "Next" button to start the practice round.</p>
+          </div>
+          <div class="btn-split">
+            <button class="btn btn-primary btn-tab" data-offset="-1" type="button">Previous</button>
+            <button class="btn btn-primary" data-next="practice" type="button">Next</button>
+          </div>
+        </div>
+      </div>
+      <aside class="rnote"><span class="rn-tag">Researcher note · the task</span>
+        A real-effort IQ-style task with real stakes (40&nbsp;ECU per correct answer) and a performance framing that makes it ego-relevant —
+        the citations about salaries and life satisfaction are part of the instrument. The worked example here is a <em>look-alike</em> item with
+        an adapted explanation; the original example, the three practice items, and the 30 task items stay unpublished. The demo plays one
+        practice puzzle instead of three.
+      </aside>
+    </section>
+
+    <!-- ══ 2 · PRACTICE PUZZLE ══ -->
+    <section class="screen" id="scr-practice">
+      <div class="stage">
+        <div class="ot-title">Part 1 - Practice Round</div>
+        <hr>
+        <div class="ot-body">
+          <p>Please select an image that fits the pattern.</p>
+          <p><b>Puzzle 1</b></p>
+          <div class="puzzle-imgs">
+            <div class="pz pz-q" id="prQBox"></div>
+            <div class="pz pz-a" id="prABox"></div>
+          </div>
+          <label class="ot-label" for="practiceInput">Please fill in a single lower-case letter.</label>
+          <input class="ot-input" id="practiceInput" maxlength="1" autocomplete="off">
+          <div class="ot-error" id="practiceErr">Please enter a single lower-case letter, from the a list of "a", "b", "c", "d", "e", and "f".</div>
+        </div>
+        <div class="btn-next-row"><button class="btn btn-primary" id="practiceNext" type="button">Next</button></div>
+      </div>
+      <aside class="rnote"><span class="rn-tag">Researcher note</span>
+        Practice comes with immediate feedback and a written explanation — the real task will not. This separates "understanding the task"
+        from "being good at it" before any incentivized round begins.
+      </aside>
+    </section>
+
+    <!-- ══ 2b · PRACTICE SOLUTION ══ -->
+    <section class="screen" id="scr-practicesol">
+      <div class="stage">
+        <div class="ot-title">Part 1 - Practice Round</div>
+        <hr>
+        <div class="ot-body">
+          <p><b>Puzzle 1</b></p>
+          <div class="puzzle-imgs">
+            <div class="pz pz-q" id="prQBox2"></div>
+            <div class="pz pz-a" id="prABox2"></div>
+          </div>
+          <p><b>Your answer</b>: <span id="prEcho"></span></p>
+          <p><b>Solution</b>: e</p>
+          <p><b>Explanation</b>: Note that all the images in the puzzle are circles with the same fill, therefore the correct answer must be one of "a", "d", or "e".</p>
+          <p>Since the circles grow larger across the columns, options "a" and "d" are incorrect.</p>
+          <p>Hence, the correct answer is "e".</p>
+        </div>
+        <div class="btn-next-row"><button class="btn btn-primary" data-next="ready" type="button">Next</button></div>
+      </div>
+    </section>
+
+    <!-- ══ 3 · READY TASK ══ -->
+    <section class="screen" id="scr-ready">
+      <div class="stage">
+        <div class="ot-title">Part 1</div>
+        <hr>
+        <div class="ot-body">
+          <p>This is the end of the instructions and practice round. We are now ready to begin the actual task.</p>
+          <p>You will receive <b>40 ECU</b> for every puzzle you solve correctly. Wrong answers will not affect your score.</p>
+          <p>Unlike the practice round, you will not be given feedback after each question on whether or not you have answered it correctly.</p>
+          <p>When you are ready, please click the "Start Task" button to proceed with the task. You will have 10 minutes to solve up to 30 puzzles.</p>
+          <p>Please note that you cannot pause and restart the task. The timer will expire in exactly 10 minutes after you click the "Start Task" button.</p>
+        </div>
+        <div class="center" style="margin-top:1.2rem;"><button class="btn btn-primary" id="readyNext" type="button">Start Task</button></div>
+      </div>
+      <aside class="rnote"><span class="rn-tag">Researcher note</span>
+        The demo compresses the 10-minute, 30-puzzle task into two puzzles on a 90-second budget. No feedback follows — exactly the uncertainty
+        about own performance that the belief elicitations in Part 2 will measure.
+      </aside>
+    </section>
+
+    <!-- ══ 4 · TASK ══ -->
+    <section class="screen" id="scr-task">
+      <div class="stage">
+        <div class="ot-timer">Time left to complete this task: <span class="t" id="taskTimer">1:30</span></div>
+        <div class="ot-title">Part 1</div>
+        <hr>
+        <div class="ot-body">
+          <p>Please select an image that fits the pattern.</p>
+          <div class="puzzle-imgs">
+            <div class="pz pz-q" id="qBox"></div>
+            <div class="pz pz-a" id="aBox"></div>
+          </div>
+          <label class="ot-label" for="taskInput">Please fill in a single lower-case letter.</label>
+          <input class="ot-input" id="taskInput" maxlength="1" autocomplete="off">
+          <div class="ot-error" id="taskErr">Please enter a single lower-case letter, from the a list of "a", "b", "c", "d", "e", and "f".</div>
+        </div>
+        <div class="btn-next-row"><button class="btn btn-primary" id="taskNext" type="button">Next</button></div>
+      </div>
+      <aside class="rnote"><span class="rn-tag">Researcher note · the performance measure</span>
+        The number solved correctly becomes the object of every belief and information decision that follows. In the lab, performance also
+        determines each participant's true rank against the 100-student benchmark group (cutoffs at 12, 16, 19, and 22 correct answers).
+      </aside>
+      <div class="demo-controls">demo control — <button id="skipTask" type="button">⏩ skip the task timer</button></div>
+    </section>
+
+    <!-- ══ 4b · SCORE MAPPING (demo voice) ══ -->
+    <section class="screen" id="scr-mapping">
+      <div class="stage">
+        <div class="ot-title">Part 1 — complete</div>
+        <hr>
+        <div class="ot-body">
+          <p>You attempted <b><span id="mapAttempted"></span></b> demo puzzle(s) and solved <b><span id="mapCorrect"></span></b> correctly.</p>
+          <p>For the rest of the demo, your Part&nbsp;1 score is set to <b><span id="mapScore"></span> out of 30</b>.</p>
+        </div>
+        <div class="btn-next-row"><button class="btn btn-primary" data-next="absbef" type="button">Next</button></div>
+      </div>
+      <aside class="rnote"><span class="rn-tag">Researcher note · demo shortcut</span>
+        In the real study your actual count out of 30 carried through the whole session. Because the demo only plays two puzzles, it assigns you a
+        score of 16&nbsp;+&nbsp;your demo correct answers — landing near the true benchmark average of 17, so the later screens feel realistic.
+      </aside>
+    </section>
+
+    <!-- ══ 5 · ABSOLUTE BELIEFS ══ -->
+    <section class="screen" id="scr-absbef">
+      <div class="stage">
+        <div class="ot-title">Part 2</div>
+        <hr>
+        <div class="ot-body">
+          <p>Please answer the following questions.</p>
+          <p>You will earn 100 ECU for each correct answer on this page.</p>
+          <p>In Part 1, how many puzzles do you think you <b>attempted</b>?</p>
+          <input class="ot-input" id="befAttempts" type="number" min="0" max="30" step="1" inputmode="numeric" placeholder="0–30">
+          <p style="margin-top:1.2rem;">How many puzzles do you think you <b>solved correctly</b>?</p>
+          <input class="ot-input" id="befAbs" type="number" min="0" max="30" step="1" inputmode="numeric" placeholder="0–30">
+          <div class="ot-error" id="absErr">Please fill in numbers between 0 and 30.</div>
+        </div>
+        <div class="btn-next-row"><button class="btn btn-primary" id="absNext" type="button">Next</button></div>
+      </div>
+      <aside class="rnote"><span class="rn-tag">Researcher note · absolute self-beliefs</span>
+        Incentivized beliefs about one's own performance (100&nbsp;ECU per exact guess). Comparing these with actual performance measures
+        over- and under-estimation before any social comparison enters.
+      </aside>
+    </section>
+
+    <!-- ══ 5b · CONFIDENCE + OVER/UNDER ══ -->
+    <section class="screen" id="scr-absbef2">
+      <div class="stage">
+        <div class="ot-title">Part 2</div>
+        <hr>
+        <div class="ot-body">
+          <p>You guessed that you <b>solved <span id="absEcho"></span> puzzle(s) correctly</b>.</p>
+          <p>How confident are you about this guess?</p>
+          <div class="optgroup" id="absConfGroup">
+            <button class="optbtn neutral" data-v="0" type="button">I chose a random number</button>
+            <button class="optbtn neutral" data-v="1" type="button">A little confident</button>
+            <button class="optbtn neutral" data-v="2" type="button">Fairly confident</button>
+            <button class="optbtn neutral" data-v="3" type="button">Highly confident</button>
+          </div>
+          <p style="margin-top:1.2rem;">If your guess is wrong, do you think you have over or under-estimated the number of puzzles you solved correctly?</p>
+          <label class="radio-row" id="overRow1"><input type="radio" name="over" value="1">Over-estimated</label>
+          <label class="radio-row" id="overRow2"><input type="radio" name="over" value="2">Under-estimated</label>
+          <div class="ot-error" id="abs2Err">Please answer all the questions to proceed.</div>
+        </div>
+        <div class="btn-next-row"><button class="btn btn-primary" id="abs2Next" type="button">Next</button></div>
+      </div>
+      <aside class="rnote"><span class="rn-tag">Researcher note</span>
+        Confidence in the guess plus the <em>direction</em> of suspected error — together they separate miscalibration from self-serving bias
+        in the absolute-belief data.
+      </aside>
+    </section>
+
+    <!-- ══ 6 · AVERAGE BELIEF ══ -->
+    <section class="screen" id="scr-avgbef">
+      <div class="stage">
+        <div class="ot-title">Part 2</div>
+        <hr>
+        <div class="ot-body">
+          <p>There were 100 participants (university students) who completed the same task you just did.
+             If we randomly pick one participant, how many puzzles do you think this person <b>solved correctly</b>?</p>
+          <p>You will earn 100 ECU if your answer is correct.</p>
+          <input class="ot-input" id="befAvg" type="number" min="0" max="30" step="1" inputmode="numeric" placeholder="0–30">
+          <p style="margin-top:1.2rem;">How confident are you about this guess?</p>
+          <div class="optgroup" id="confGroup">
+            <button class="optbtn neutral" data-v="0" type="button">I chose a random number</button>
+            <button class="optbtn neutral" data-v="1" type="button">A little confident</button>
+            <button class="optbtn neutral" data-v="2" type="button">Fairly confident</button>
+            <button class="optbtn neutral" data-v="3" type="button">Highly confident</button>
+          </div>
+          <div class="ot-error" id="avgErr">Please answer all the questions to proceed.</div>
+        </div>
+        <div class="btn-next-row"><button class="btn btn-primary" id="avgNext" type="button">Next</button></div>
+      </div>
+      <aside class="rnote"><span class="rn-tag">Researcher note · the comparison group</span>
+        Beliefs about a randomly drawn member of the 100-student benchmark group anchor the social comparison. (The benchmark group's true
+        average was 17 of 30.)
+      </aside>
+    </section>
+
+    <!-- ══ 7 · NOISY FEEDBACK ══ -->
+    <section class="screen" id="scr-noisy">
+      <div class="stage">
+        <div class="ot-title">Part 2</div>
+        <hr>
+        <div class="ot-body">
+          <div id="noisy1">
+            <p>The computer will now generate a score based on your Part 1 performance. However, the computer sometimes makes mistakes.</p>
+            <p>The score that the computer report is as follows:</p>
+            <p class="center"><b>score = number of puzzles you solved correctly + a random number X</b></p>
+            <p>where the random number X is a number randomly drawn by the computer.
+               <b>X can be either -3, -2, -1, 0, 1, 2, or 3</b>.
+               This means that each of these 7 numbers is <b>equally likely to be X</b>.</p>
+            <p><b>Example</b>: Suppose the number of puzzles you solved correctly is 18, and the computer randomly draws X to be -2.
+               In this case, the score revealed to you will be 18 &minus; 2 = 16.</p>
+            <div class="btn-next-row"><button class="btn btn-primary" id="noisyNext1" type="button">Next</button></div>
+          </div>
+          <div id="noisy2" style="display:none;">
+            <p>Based on the number of puzzles you solved correctly in Part 1, the computer generated a score of:</p>
+            <p class="bignum" id="noisyScore"></p>
+            <div class="btn-next-row"><button class="btn btn-primary" data-next="relbef" type="button">Next</button></div>
+          </div>
+        </div>
+      </div>
+      <aside class="rnote"><span class="rn-tag">Researcher note · deliberately noisy signal</span>
+        Performance feedback is garbled with known, symmetric noise (X uniform on −3…+3). Participants know the noise structure, so the signal
+        is informative but leaves room for self-serving interpretation — the design can then study how beliefs respond and how demand for further
+        information forms.
+      </aside>
+    </section>
+
+    <!-- ══ 8 · RELATIVE BELIEFS (5 sliders) ══ -->
+    <section class="screen" id="scr-relbef">
+      <div class="stage">
+        <div class="ot-title">Part 2</div>
+        <hr>
+        <div class="ot-body">
+          <p>As it is mentioned earlier, there were 100 participants (university students) who completed the same task in Part 1 as you just did.
+             Where do you think your performance, as measured by the number of correctly solved puzzles, is ranked against these participants?</p>
+          <p>Please indicate the likelihood that your performance is in each of the five intervals.
+             A higher number means that your performance is more likely to be in that interval.
+             The total likelihood assigned to all five intervals must add up to 100%.</p>
+          <p><b>You may receive 200 ECU based on how accurate your guess is compared to the true outcome.</b>
+             The rule to determine your payment is designed such that your chance of receiving 200 ECU is highest
+             <b>if you state your most accurate prediction</b>.</p>
+
+          <div id="rankRows"></div>
+
+          <p class="sum-line">Total likelihood assigned: <b id="rankSum">0%</b></p>
+          <p class="sum-err" id="rankErr">The likelihood must add up to 100%!</p>
+          <p class="center" style="margin-top:.6rem;"><button class="btn btn-success" id="rankConfirm" type="button">Confirm my decision</button></p>
+          <div class="btn-next-row" id="rankNextRow" style="display:none;"><button class="btn btn-primary" data-next="p3intro" type="button">Next</button></div>
+        </div>
+      </div>
+      <aside class="rnote"><span class="rn-tag">Researcher note · relative beliefs</span>
+        A full belief distribution over five rank quintiles, incentivized with a <strong>binarized scoring rule</strong> (200&nbsp;ECU prize) —
+        truth-telling is optimal regardless of risk attitudes. The mean of this distribution is the paper's measure of relative confidence.
+      </aside>
+    </section>
+
+    <!-- ══ 9 · PART 3 INTRODUCTION ══ -->
+    <section class="screen" id="scr-p3intro">
+      <div class="stage">
+        <div class="ot-title">Part 3</div>
+        <hr>
+        <div class="ot-body">
+          <p>We will now proceed to Part 3.</p>
+          <p>Please read the instructions carefully and complete the comprehension questions.</p>
+        </div>
+        <div class="btn-next-row"><button class="btn btn-primary" data-next="p3inst" type="button">Next</button></div>
+      </div>
+    </section>
+
+    <!-- ══ 10 · PART 3 INSTRUCTIONS (2 tabs, treatment-dependent) ══ -->
+    <section class="screen" id="scr-p3inst">
+      <div class="stage">
+        <div class="tab">
+          <div class="ot-title">Part 3 - Instructions (Page 1 of 2)</div>
+          <hr>
+          <div class="ot-body">
+            <div id="p3instT1">
+              <p>Part 3 is the <b>last part</b> of the experiment. After Part 3, you will be asked to complete a short survey.</p>
+              <p>In Part 3, you will have the chance to see the performance of other participants who did the same task.</p>
+            </div>
+            <div id="p3instT2" style="display:none;">
+              <p>In the next part of the experiment (Part 4), you will be asked to complete another task similar to the one in Part 1.</p>
+              <p>However, before that, you will have the chance to see the performance of other participants who did the same task.</p>
+            </div>
+            <p>Specifically, 100 other participants have been ranked based on their performance into five intervals.
+               You can pick one of the following five intervals, and you will be given information about the average performance of participants ranked in that interval.</p>
+            <div class="optgroup">
+              <span class="optbtn dis">Rank 1-20 <br> (top performance)</span>
+              <span class="optbtn dis">Rank 21-40 <br> (above average)</span>
+              <span class="optbtn dis">Rank 41-60 <br> (average performance)</span>
+              <span class="optbtn dis">Rank 61-80 <br> (below average)</span>
+              <span class="optbtn dis">Rank 81-100 <br> (bottom performance)</span>
+            </div>
+            <p style="margin-top:1rem;">You will be asked to state how much you are willing to pay for this information.</p>
+          </div>
+          <div class="btn-next-row"><button class="btn btn-primary btn-tab" data-offset="1" type="button">Next</button></div>
+        </div>
+        <div class="tab">
+          <div class="ot-title">Part 3 - Instructions (Page 2 of 2)</div>
+          <hr>
+          <div class="ot-body">
+            <p>Specifically, for the interval you have chosen, <b>please tell us the highest amount (between 0 and 100 ECU) you would be willing
+               to pay to receive the information</b>. This amount indicates the value of the information to you.
+               For example, if the information is worth 50 ECU to you, then you should be prepared to pay up to 50 ECU but not more than that.</p>
+            <p>After you make your decision, the computer will randomly draw a price between 0 ECU and 100 ECU.</p>
+            <p>If you say that you are willing to pay up to 50 ECU and the computer draws a price of 60 ECU,
+               then you will not receive the information because this price exceeds your value for the information.
+               But if the computer draws a price of 40 ECU, then you will receive the information and pay 40 ECU for it.</p>
+          </div>
+          <div class="btn-split">
+            <button class="btn btn-primary btn-tab" data-offset="-1" type="button">Previous</button>
+            <button class="btn btn-primary" data-next="comp" type="button">Next</button>
+          </div>
+        </div>
+      </div>
+      <aside class="rnote"><span class="rn-tag">Researcher note · the treatment</span>
+        This page is where the two randomly assigned environments diverge — and it's the <em>only</em> difference between them.
+        <strong id="rnTreatTxt"></strong> Everything else — task, beliefs, elicitations — is identical, so any difference in information demand
+        is attributable to instrumentality.
+      </aside>
+    </section>
+
+    <!-- ══ 11 · COMPREHENSION ══ -->
+    <section class="screen" id="scr-comp">
+      <div class="stage">
+        <div class="ot-title">Part 3 - Comprehension Questions (1 of 4)</div>
+        <hr>
+        <div class="ot-body">
+          <p>To make sure you understand the instructions, please answer the following questions.</p>
+          <p>Suppose you state that you are willing to pay up to 70 ECU for the information of your choice.
+             Which of the following statements is correct?</p>
+          <label class="radio-row"><input type="radio" name="comp1" value="1">I will definitely pay 70 ECU for the information.</label>
+          <label class="radio-row"><input type="radio" name="comp1" value="2">The computer will randomly draw a price between 0 ECU and 100 ECU.
+             Whether or not I receive the information, and how much I pay for it, will depend on the price that the computer randomly draws.</label>
+          <p class="center" style="margin-top:1rem;"><button class="btn btn-success" id="compCheck" type="button">Check Answer</button></p>
+          <div class="ot-feedback" id="compWrong">
+            <p>Your answer is incorrect.</p>
+            <p>The computer will randomly draw a price between 0 ECU and 100 ECU.
+               Whether or not you receive the information, and how much you pay for it, will depend on the price that the computer randomly draws.</p>
+            <p>Please try again.</p>
+          </div>
+          <div class="ot-feedback good" id="compRight">
+            <p>Your answer is correct. Please click "Next" to proceed.</p>
+          </div>
+        </div>
+        <div class="btn-next-row"><button class="btn btn-primary" id="compNext" type="button" style="visibility:hidden;">Next</button></div>
+      </div>
+      <aside class="rnote"><span class="rn-tag">Researcher note · comprehension gate</span>
+        One of <strong>four</strong> comprehension questions participants had to pass before the information-demand decisions (the demo shows the
+        first). Wrong attempts are logged — a per-participant measure of how well the BDM mechanism was understood.
+      </aside>
+    </section>
+
+    <!-- ══ 12 · PREFERENCE ══ -->
+    <section class="screen" id="scr-pref">
+      <div class="stage">
+        <div class="ot-title">Part 3</div>
+        <hr>
+        <div class="ot-body">
+          <p>Of these intervals, which interval would you <b>most</b> prefer to receive information about?</p>
+          <p>If you are not interested in receiving information about any of these intervals, please select "Not interested".</p>
+          <div class="optgroup" id="prefGroup">
+            <button class="optbtn" data-v="5" type="button">Rank 1-20 <br> (top performance)</button>
+            <button class="optbtn" data-v="4" type="button">Rank 21-40 <br> (above average)</button>
+            <button class="optbtn" data-v="3" type="button">Rank 41-60 <br> (average performance)</button>
+            <button class="optbtn" data-v="2" type="button">Rank 61-80 <br> (below average)</button>
+            <button class="optbtn" data-v="1" type="button">Rank 81-100 <br> (bottom performance)</button>
+            <button class="optbtn" data-v="0" type="button">Not interested</button>
+          </div>
+          <div class="ot-error" id="prefErr">Please select an interval to proceed.</div>
+        </div>
+        <div class="btn-next-row"><button class="btn btn-primary" id="prefNext" type="button">Next</button></div>
+      </div>
+      <aside class="rnote"><span class="rn-tag">Researcher note · demand for comparative information</span>
+        The paper's core outcome begins here: <em>which</em> group's performance do you want to learn about — an upward comparison (groups above
+        your believed rank), a downward one, or none at all? "Not interested" is a real option with real consequences: no information follows.
+      </aside>
+    </section>
+
+    <!-- ══ 13 · WTP ══ -->
+    <section class="screen" id="scr-wtp">
+      <div class="stage">
+        <div class="ot-title">Part 3</div>
+        <hr>
+        <div class="ot-body">
+          <p>You have indicated that you would like to learn the average performance of participants in <br> <b id="wtpPrefLabel"></b>.</p>
+          <p>Up to how many ECU would you be willing to pay for this information?</p>
+          <label class="ot-label" for="wtpSelect">Please select the highest amount of ECU you are willing to pay.</label>
+          <select class="ot-input" id="wtpSelect">
+            <option value="">— select —</option>
+            <option>0</option><option>10</option><option>20</option><option>30</option><option>40</option>
+            <option>50</option><option>60</option><option>70</option><option>80</option><option>90</option><option>100</option>
+          </select>
+          <div class="ot-error" id="wtpErr">Please select an amount.</div>
+        </div>
+        <div class="btn-next-row"><button class="btn btn-primary" id="wtpNext" type="button">Next</button></div>
+      </div>
+      <aside class="rnote"><span class="rn-tag">Researcher note · willingness to pay</span>
+        WTP for the chosen information, from a 100&nbsp;ECU endowment, implemented with the BDM mechanism you just passed the comprehension check
+        on: random price from {0,&nbsp;10,&nbsp;…,&nbsp;100}; pay the price and receive the information only if your WTP covers it. Truthful
+        bidding is optimal.
+      </aside>
+    </section>
+
+    <!-- ══ 14 · HYPOTHETICAL SECOND PREFERENCE ══ -->
+    <section class="screen" id="scr-pref2">
+      <div class="stage">
+        <div class="ot-title">Part 3 - Hypothetical Question</div>
+        <hr>
+        <div class="ot-body">
+          <p>Suppose you are given a chance to learn about the performance of others in <b>one more interval</b>. Which interval would you choose?</p>
+          <p>If you are not interested in receiving information about any of these intervals, please select "Not interested".</p>
+          <div class="optgroup" id="pref2Group">
+            <button class="optbtn" data-v="5" type="button">Rank 1-20 <br> (top performance)</button>
+            <button class="optbtn" data-v="4" type="button">Rank 21-40 <br> (above average)</button>
+            <button class="optbtn" data-v="3" type="button">Rank 41-60 <br> (average performance)</button>
+            <button class="optbtn" data-v="2" type="button">Rank 61-80 <br> (below average)</button>
+            <button class="optbtn" data-v="1" type="button">Rank 81-100 <br> (bottom performance)</button>
+            <button class="optbtn" data-v="0" type="button">Not interested</button>
+          </div>
+          <div class="ot-error" id="pref2Err">Please select an interval to proceed.</div>
+        </div>
+        <div class="btn-next-row"><button class="btn btn-primary" id="pref2Next" type="button">Next</button></div>
+      </div>
+      <aside class="rnote"><span class="rn-tag">Researcher note · hypothetical follow-up</span>
+        A second, hypothetical choice with your first pick greyed out — it maps the <em>ordering</em> of preferences over comparison groups beyond
+        the single paid choice. (In the study a hypothetical WTP question followed; the demo omits it.)
+      </aside>
+    </section>
+
+    <!-- ══ 15 · EFFICACY ══ -->
+    <section class="screen" id="scr-efficacy">
+      <div class="stage">
+        <div class="ot-title">Part 3</div>
+        <hr>
+        <div class="ot-body">
+          <div id="effT1">
+            <p>Suppose after Part 3, there is another Part 4 where you can solve another round of puzzles, just like in Part 1.</p>
+            <p>In Part 2, you guessed that you had solved <span class="effEcho"></span> puzzle(s) correctly in Part 1.
+               How many puzzles do you think you will be able to solve correctly in this <b>hypothetical Part 4</b>?</p>
+          </div>
+          <div id="effT2" style="display:none;">
+            <p>Before we proceed to Part 4, please answer the following questions.</p>
+            <p>In Part 2, you guessed that you had solved <span class="effEcho"></span> puzzle(s) correctly in Part 1.
+               How many puzzles do you think you will be able to solve correctly in <b>Part 4</b>?</p>
+          </div>
+          <input class="ot-input" id="effInput" type="number" min="0" max="30" step="1" inputmode="numeric" placeholder="0–30">
+          <p style="margin-top:1.2rem;" id="effConfQ"></p>
+          <div class="optgroup" id="effConfGroup">
+            <button class="optbtn neutral" data-v="0" type="button">I chose a random number</button>
+            <button class="optbtn neutral" data-v="1" type="button">A little confident</button>
+            <button class="optbtn neutral" data-v="2" type="button">Fairly confident</button>
+            <button class="optbtn neutral" data-v="3" type="button">Highly confident</button>
+          </div>
+          <p>Your payment in this experiment will <b>not</b> be affected by your responses to these questions.</p>
+          <div class="ot-error" id="effErr">Please answer all the questions to proceed.</div>
+        </div>
+        <div class="btn-next-row"><button class="btn btn-primary" id="effNext" type="button">Next</button></div>
+      </div>
+      <aside class="rnote"><span class="rn-tag">Researcher note · self-efficacy</span>
+        Expected performance in a second round — hypothetical in the non-instrumental condition, real in the instrumental one. It measures whether
+        participants believe rank information could change what they can achieve, the channel that gives information instrumental value.
+      </aside>
+    </section>
+
+    <!-- ══ 16 · FEEDBACK EXPECTATION ══ -->
+    <section class="screen" id="scr-fexp">
+      <div class="stage">
+        <div class="ot-title">Part 3</div>
+        <hr>
+        <div class="ot-body">
+          <p>You have indicated that you would like to learn the average performance of participants in <br> <b id="fexpLabel"></b>.</p>
+          <p>On average, how many puzzles do you think participants in this interval solved?</p>
+          <input class="ot-input" id="fexpInput" type="number" min="0" max="30" step="1" inputmode="numeric" placeholder="0–30">
+          <div class="ot-error" id="fexpErr">Please fill in number between 0 and 100.</div>
+        </div>
+        <div class="btn-next-row"><button class="btn btn-primary" id="fexpNext" type="button">Next</button></div>
+      </div>
+      <aside class="rnote"><span class="rn-tag">Researcher note</span>
+        Just before the reveal: what do you <em>expect</em> the information to say? Comparing this prior with the actual feedback identifies
+        whether the news is good or bad for each participant — the input for studying belief updating.
+      </aside>
+    </section>
+
+    <!-- ══ 17 · FEEDBACK ══ -->
+    <section class="screen" id="scr-feedback">
+      <div class="stage">
+        <div class="ot-title">Part 3 - Feedback</div>
+        <hr>
+        <div class="ot-body" id="feedbackBody"></div>
+        <div class="btn-next-row"><button class="btn btn-primary" data-next="debrief" type="button">Next</button></div>
+      </div>
+      <aside class="rnote"><span class="rn-tag">Researcher note · information delivered</span>
+        The feedback values are the real ones from the study's 100-participant benchmark: the five rank groups solved on average 25.5, 20.5, 17.5,
+        14, and 7.5 puzzles (top to bottom). No deception anywhere — if the BDM draw goes against you, you really learn nothing.
+        In the instrumental condition, participants then went on to the second task (Part 4).
+      </aside>
+    </section>
+
+    <!-- ══ 18 · DEBRIEF ══ -->
+    <section class="screen site-voice" id="scr-debrief">
+      <p class="eyebrow">// demo complete</p>
+      <h1>What you just did — and what it measures</h1>
+      <div class="stat-grid" id="statGrid"></div>
+      <h2>How the real experiment works</h2>
+      <ul>
+        <li><strong>Design:</strong> a real-effort task (30 pattern puzzles, 10 minutes, 40 ECU each, after instructions and a 3-puzzle practice round), incentivized beliefs about absolute performance, a random other participant, and one's own rank (binarized scoring rule), a deliberately noisy performance signal, four comprehension checks, then the demand for comparative information: interval choice, BDM-elicited willingness to pay, and a hypothetical second choice.</li>
+        <li><strong>Two environments (randomly assigned):</strong> information is either <em>non-instrumental</em> (Part 3 ends the session) or <em>instrumental</em> (participants know a second task round follows, so rank information can guide them).</li>
+        <li><strong>Headline results:</strong> when comparative information has no instrumental value, women — especially those who believe themselves to be average performers — avoid upward comparative information. Facing the prospect of doing the task again, women become <em>more</em> likely than men to seek upward comparative information, again driven by self-assessed average performers.</li>
+      </ul>
+      <p style="margin-top:1.2rem;">
+        <a class="btn-gold" href="../index.html">About the paper</a>
+        &nbsp; <button class="btn-outline" id="replayBtn" type="button">Replay the demo</button>
+        &nbsp; <a class="btn-outline" href="../experiments.html">← Back to experiments</a>
+      </p>
+    </section>
+
+  </div>
+
+  <div class="footer-note">
+    Condensed replica of the oTree experiment in <em>Gender and the Demand for Comparative Information</em>
+    (Nisvan Erkal, Boon Han Koh &amp; Lingguo Xu). For demonstration only — this page collects no data. &nbsp;·&nbsp; <a href="../index.html">lingguoxu.com</a>
+  </div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ── Look-alike SVG puzzle builder (original study items are not published) ── */
+  function sh(kind, cx, cy, fill, n, small) {
+    var f = fill === 'w' ? '#ffffff' : (fill === 'g' ? '#b9b9b9' : '#2b2b2b');
+    var st = ' fill="' + f + '" stroke="#333" stroke-width="2"';
+    if (kind === 'c')  return '<circle cx="' + cx + '" cy="' + cy + '" r="' + (small ? 15 : 22) + '"' + st + '/>';
+    if (kind === 'cs') return '<circle cx="' + cx + '" cy="' + cy + '" r="' + (small ? 6 : 9) + '"' + st + '/>';
+    if (kind === 'cm') return '<circle cx="' + cx + '" cy="' + cy + '" r="' + (small ? 10 : 15) + '"' + st + '/>';
+    if (kind === 'cl') return '<circle cx="' + cx + '" cy="' + cy + '" r="' + (small ? 14 : 22) + '"' + st + '/>';
+    if (kind === 's') { var h = small ? 14 : 20; return '<rect x="' + (cx - h) + '" y="' + (cy - h) + '" width="' + 2*h + '" height="' + 2*h + '"' + st + '/>'; }
+    if (kind === 't') { var z = small ? 16 : 24; return '<polygon points="' + cx + ',' + (cy - z) + ' ' + (cx - z) + ',' + (cy + z*0.8) + ' ' + (cx + z) + ',' + (cy + z*0.8) + '"' + st + '/>'; }
+    if (kind === 'd') {
+      var r = small ? 5 : 7, gap = small ? 12 : 16;
+      var xs = n === 1 ? [cx] : (n === 2 ? [cx - gap*0.7, cx + gap*0.7] : [cx - gap, cx, cx + gap]);
+      var out = '';
+      for (var i = 0; i < xs.length; i++) out += '<circle cx="' + xs[i] + '" cy="' + cy + '" r="' + r + '"' + st + '/>';
+      return out;
+    }
+    return '';
+  }
+  function qsvg(cells) {
+    var s = '<svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Pattern puzzle">';
+    s += '<rect x="1" y="1" width="238" height="238" fill="#fff" stroke="#999"/>';
+    s += '<line x1="80" y1="1" x2="80" y2="239" stroke="#ccc"/><line x1="160" y1="1" x2="160" y2="239" stroke="#ccc"/>';
+    s += '<line x1="1" y1="80" x2="239" y2="80" stroke="#ccc"/><line x1="1" y1="160" x2="239" y2="160" stroke="#ccc"/>';
+    for (var i = 0; i < 9; i++) {
+      var cx = 40 + (i % 3) * 80, cy = 40 + Math.floor(i / 3) * 80, c = cells[i];
+      if (c === null) {
+        s += '<rect x="' + (cx-26) + '" y="' + (cy-26) + '" width="52" height="52" fill="none" stroke="#c4993a" stroke-dasharray="5,4" stroke-width="2"/>';
+        s += '<text x="' + cx + '" y="' + (cy+10) + '" text-anchor="middle" font-size="30" fill="#c4993a" font-family="sans-serif">?</text>';
+      } else {
+        s += sh(c[0], cx, cy, c[1], c[2], false);
+      }
+    }
+    return s + '</svg>';
+  }
+  function asvg(opts) {
+    var s = '<svg viewBox="0 0 372 92" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Answer options a to f">';
+    var letters = ['(a)', '(b)', '(c)', '(d)', '(e)', '(f)'];
+    for (var i = 0; i < 6; i++) {
+      var bx = 4 + i * 61, cx = bx + 27;
+      s += '<rect x="' + bx + '" y="4" width="54" height="58" fill="#fff" stroke="#999"/>';
+      s += sh(opts[i][0], cx, 33, opts[i][1], opts[i][2], true);
+      s += '<text x="' + cx + '" y="84" text-anchor="middle" font-size="15" fill="#333" font-family="sans-serif">' + letters[i] + '</text>';
+    }
+    return s + '</svg>';
+  }
+  /* worked example (instructions p.2): squares darkening across columns; correct = (a) */
+  var EXAMPLE = {
+    q: qsvg([['s','w'],['s','g'],['s','b'], ['s','w'],['s','g'],['s','b'], ['s','w'],['s','g'], null]),
+    a: asvg([['s','b'],['s','g'],['c','b'],['s','w'],['t','b'],['c','g']])
+  };
+  /* practice puzzle: circles growing across columns; correct = (e) to match the original solution text */
+  var PRACTICE = {
+    q: qsvg([['cs','w'],['cm','w'],['cl','w'], ['cs','w'],['cm','w'],['cl','w'], ['cs','w'],['cm','w'], null]),
+    a: asvg([['cs','w'],['s','w'],['cl','g'],['cm','w'],['cl','w'],['t','w']]),
+    sol: 'e'
+  };
+  var PUZZLES = [
+    { q: qsvg([['c','w'],['c','g'],['c','b'], ['s','w'],['s','g'],['s','b'], ['t','w'],['t','g'], null]),
+      a: asvg([['t','w'],['s','b'],['t','g'],['t','b'],['c','b'],['s','w']]),
+      sol: 'd' },
+    { q: qsvg([['d','w',1],['d','w',2],['d','w',3], ['d','g',1],['d','g',2],['d','g',3], ['d','b',1],['d','b',2], null]),
+      a: asvg([['d','b',2],['d','g',3],['d','b',3],['d','b',1],['d','w',3],['d','g',2]]),
+      sol: 'c' }
+  ];
+  var RANKS = [
+    { key: 5, label: 'Rank 1-20 <br> (top performance)',      text: 'Rank 1-20 (top performance)',      avg: 25.5 },
+    { key: 4, label: 'Rank 21-40 <br> (above average)',       text: 'Rank 21-40 (above average)',       avg: 20.5 },
+    { key: 3, label: 'Rank 41-60 <br> (average performance)', text: 'Rank 41-60 (average performance)', avg: 17.5 },
+    { key: 2, label: 'Rank 61-80 <br> (below average)',       text: 'Rank 61-80 (below average)',       avg: 14 },
+    { key: 1, label: 'Rank 81-100 <br> (bottom performance)', text: 'Rank 81-100 (bottom performance)', avg: 7.5 }
+  ];
+  var TASK_SECONDS = 90;
+
+  var S = {
+    treatment: Math.random() < 0.5 ? 1 : 2,   // 1 = non-instrumental, 2 = instrumental
+    practice: null, compAttempts: 0,
+    puzzle: 0, attempted: 0, correct: 0, score: null,
+    befAttempts: null, befAbs: null, absConf: null, absOver: null,
+    befAvg: null, conf: null,
+    noise: null, noisy: null,
+    rel: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }, relMean: null,
+    pref: null, wtp: null, bdmX: null, bought: null,
+    pref2: null, eff: null, effConf: null, fexp: null
+  };
+  var timerId = null, remaining = TASK_SECONDS;
+
+  function $(id) { return document.getElementById(id); }
+  function show(name) {
+    var scrs = document.querySelectorAll('.screen');
+    for (var i = 0; i < scrs.length; i++) scrs[i].classList.remove('active');
+    $('scr-' + name).classList.add('active');
+    window.scrollTo(0, 0);
+  }
+  function fmt(sec) { var m = Math.floor(sec / 60), s = sec % 60; return m + ':' + (s < 10 ? '0' : '') + s; }
+  function rankByKey(k) {
+    for (var i = 0; i < RANKS.length; i++) if (RANKS[i].key === k) return RANKS[i];
+    return null;
+  }
+  function pickOne(groupEl, cb) {
+    groupEl.addEventListener('click', function (e) {
+      var b = e.target.closest('.optbtn');
+      if (!b || b.classList.contains('dis')) return;
+      var all = groupEl.querySelectorAll('.optbtn');
+      for (var i = 0; i < all.length; i++) all[i].classList.remove('sel');
+      b.classList.add('sel');
+      cb(parseInt(b.getAttribute('data-v'), 10), b);
+    });
+  }
+
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-next]');
+    if (t) show(t.getAttribute('data-next'));
+  });
+
+  /* tabbed screens */
+  function initTabs(sectionId) {
+    var sec = $(sectionId);
+    var tabs = sec.querySelectorAll('.tab');
+    var idx = 0;
+    function render() {
+      for (var i = 0; i < tabs.length; i++) tabs[i].style.display = i === idx ? 'block' : 'none';
+      window.scrollTo(0, 0);
+    }
+    var btns = sec.querySelectorAll('.btn-tab');
+    for (var b = 0; b < btns.length; b++) {
+      btns[b].addEventListener('click', function () {
+        idx += parseInt(this.getAttribute('data-offset'), 10);
+        if (idx < 0) idx = 0;
+        if (idx > tabs.length - 1) idx = tabs.length - 1;
+        render();
+      });
+    }
+    render();
+  }
+  initTabs('scr-inst');
+  initTabs('scr-p3inst');
+
+  $('notesToggle').addEventListener('click', function () {
+    document.body.classList.toggle('notes-on');
+    $('notesState').textContent = document.body.classList.contains('notes-on') ? 'ON' : 'OFF';
+  });
+  $('jumpDebrief').addEventListener('click', function () {
+    if (timerId) { clearInterval(timerId); timerId = null; }
+    buildDebrief();
+    show('debrief');
+  });
+
+  /* ── intro → instructions ── */
+  $('startBtn').addEventListener('click', function () {
+    $('exQBox').innerHTML = EXAMPLE.q;
+    $('exABox').innerHTML = EXAMPLE.a;
+    /* treatment-dependent bits */
+    $('p3instT1').style.display = S.treatment === 1 ? 'block' : 'none';
+    $('p3instT2').style.display = S.treatment === 2 ? 'block' : 'none';
+    $('rnTreatTxt').textContent = S.treatment === 1
+      ? 'You are in the non-instrumental condition: Part 3 is announced as the last part, so the rank information cannot be used for anything.'
+      : 'You are in the instrumental condition: a second task (Part 4) is announced first, so rank information may help you gauge what to aim for.';
+    $('effT1').style.display = S.treatment === 1 ? 'block' : 'none';
+    $('effT2').style.display = S.treatment === 2 ? 'block' : 'none';
+    $('effConfQ').textContent = S.treatment === 1
+      ? 'How confident are you about achieving this level of performance?'
+      : 'How confident are you about this guess?';
+    show('inst');
+  });
+
+  /* ── practice ── */
+  $('practiceNext').addEventListener('click', function () {
+    var v = $('practiceInput').value.trim();
+    if (['a','b','c','d','e','f'].indexOf(v) === -1) { $('practiceErr').style.display = 'block'; return; }
+    $('practiceErr').style.display = 'none';
+    S.practice = v;
+    $('prQBox2').innerHTML = PRACTICE.q;
+    $('prABox2').innerHTML = PRACTICE.a;
+    $('prEcho').textContent = v;
+    show('practicesol');
+  });
+
+  /* ── ready → task ── */
+  function loadPuzzle(i) {
+    S.puzzle = i;
+    $('qBox').innerHTML = PUZZLES[i].q;
+    $('aBox').innerHTML = PUZZLES[i].a;
+    $('taskInput').value = '';
+    $('taskErr').style.display = 'none';
+    $('taskInput').focus();
+  }
+  function startTask() {
+    loadPuzzle(0);
+    show('task');
+    remaining = TASK_SECONDS;
+    $('taskTimer').textContent = fmt(remaining);
+    if (timerId) clearInterval(timerId);
+    timerId = setInterval(function () {
+      remaining -= 1;
+      if (remaining <= 0) { endTask(); return; }
+      $('taskTimer').textContent = fmt(remaining);
+    }, 1000);
+  }
+  function endTask() {
+    if (timerId) { clearInterval(timerId); timerId = null; }
+    S.score = 16 + S.correct;
+    $('mapAttempted').textContent = S.attempted;
+    $('mapCorrect').textContent = S.correct;
+    $('mapScore').textContent = S.score;
+    show('mapping');
+  }
+  $('readyNext').addEventListener('click', startTask);
+  $('taskNext').addEventListener('click', function () {
+    var v = $('taskInput').value.trim();
+    if (['a','b','c','d','e','f'].indexOf(v) === -1) { $('taskErr').style.display = 'block'; return; }
+    $('taskErr').style.display = 'none';
+    S.attempted += 1;
+    if (v === PUZZLES[S.puzzle].sol) S.correct += 1;
+    if (S.puzzle + 1 < PUZZLES.length) { loadPuzzle(S.puzzle + 1); } else { endTask(); }
+  });
+  var lastSkip = 0;
+  $('skipTask').addEventListener('click', function () {
+    var now = Date.now();
+    if (now - lastSkip < 600) return;
+    lastSkip = now;
+    if (timerId) endTask();
+  });
+
+  /* ── absolute beliefs ── */
+  $('absNext').addEventListener('click', function () {
+    var a = parseInt($('befAttempts').value, 10), b = parseInt($('befAbs').value, 10);
+    if (isNaN(a) || a < 0 || a > 30 || isNaN(b) || b < 0 || b > 30) { $('absErr').style.display = 'block'; return; }
+    $('absErr').style.display = 'none';
+    S.befAttempts = a; S.befAbs = b;
+    $('absEcho').textContent = b;
+    document.querySelectorAll('.effEcho').forEach(function (el) { el.textContent = b; });
+    show('absbef2');
+  });
+
+  /* ── confidence + over/under ── */
+  pickOne($('absConfGroup'), function (v) { S.absConf = v; });
+  var overRadios = document.querySelectorAll('input[name="over"]');
+  for (var oi = 0; oi < overRadios.length; oi++) {
+    overRadios[oi].addEventListener('change', function () {
+      S.absOver = parseInt(this.value, 10);
+      $('overRow1').classList.toggle('sel', this.value === '1' && this.checked);
+      $('overRow2').classList.toggle('sel', this.value === '2' && this.checked);
+    });
+  }
+  $('abs2Next').addEventListener('click', function () {
+    if (S.absConf === null || S.absOver === null) { $('abs2Err').style.display = 'block'; return; }
+    $('abs2Err').style.display = 'none';
+    show('avgbef');
+  });
+
+  /* ── average belief ── */
+  pickOne($('confGroup'), function (v) { S.conf = v; });
+  $('avgNext').addEventListener('click', function () {
+    var v = parseInt($('befAvg').value, 10);
+    if (isNaN(v) || v < 0 || v > 30 || S.conf === null) { $('avgErr').style.display = 'block'; return; }
+    $('avgErr').style.display = 'none';
+    S.befAvg = v;
+    show('noisy');
+  });
+
+  /* ── noisy feedback ── */
+  $('noisyNext1').addEventListener('click', function () {
+    if (S.noise === null) {
+      S.noise = [-3,-2,-1,0,1,2,3][Math.floor(Math.random() * 7)];
+      var sn = S.score + S.noise;
+      S.noisy = sn < 0 ? 0 : (sn > 30 ? 30 : sn);
+    }
+    $('noisyScore').textContent = S.noisy;
+    $('noisy1').style.display = 'none';
+    $('noisy2').style.display = 'block';
+    window.scrollTo(0, 0);
+  });
+
+  /* ── relative beliefs ── */
+  (function buildRanks() {
+    var host = $('rankRows'), html = '';
+    for (var i = 0; i < RANKS.length; i++) {
+      var r = RANKS[i];
+      html += '<div class="rank-row">' +
+        '<div class="rank-lab">' + r.label + '</div>' +
+        '<div class="rank-slide"><span style="font-size:.8rem;"><b>0</b></span>' +
+        '<input type="range" min="0" max="100" step="5" value="0" data-rank="' + r.key + '">' +
+        '<span style="font-size:.8rem;"><b>100</b></span>' +
+        '<span class="rank-val" id="rv' + r.key + '">0%</span></div></div>';
+    }
+    host.innerHTML = html;
+  })();
+  function rankSum() {
+    var sum = 0, sliders = document.querySelectorAll('#rankRows input[type=range]');
+    for (var i = 0; i < sliders.length; i++) sum += parseInt(sliders[i].value, 10);
+    return sum;
+  }
+  document.addEventListener('input', function (e) {
+    var t = e.target;
+    if (!t.matches || !t.matches('#rankRows input[type=range]')) return;
+    S.rel[parseInt(t.getAttribute('data-rank'), 10)] = parseInt(t.value, 10);
+    $('rv' + t.getAttribute('data-rank')).textContent = t.value + '%';
+    $('rankSum').textContent = rankSum() + '%';
+    $('rankErr').style.display = 'none';
+    $('rankNextRow').style.display = 'none';
+  });
+  $('rankConfirm').addEventListener('click', function () {
+    if (rankSum() !== 100) { $('rankErr').style.display = 'block'; return; }
+    $('rankErr').style.display = 'none';
+    S.relMean = Math.round((5*S.rel[5] + 4*S.rel[4] + 3*S.rel[3] + 2*S.rel[2] + 1*S.rel[1]) / 100 * 100) / 100;
+    $('rankNextRow').style.display = 'block';
+  });
+
+  /* ── comprehension ── */
+  var compRadios = document.querySelectorAll('input[name="comp1"]');
+  for (var ci = 0; ci < compRadios.length; ci++) {
+    compRadios[ci].addEventListener('change', function () {
+      $('compWrong').style.display = 'none';
+      $('compRight').style.display = 'none';
+      var rows = document.querySelectorAll('#scr-comp .radio-row');
+      for (var j = 0; j < rows.length; j++) rows[j].classList.toggle('sel', rows[j].querySelector('input').checked);
+    });
+  }
+  $('compCheck').addEventListener('click', function () {
+    var sel = document.querySelector('input[name="comp1"]:checked');
+    if (!sel) return;
+    if (sel.value === '2') {
+      $('compWrong').style.display = 'none';
+      $('compRight').style.display = 'block';
+      $('compNext').style.visibility = 'visible';
+    } else {
+      S.compAttempts += 1;
+      $('compRight').style.display = 'none';
+      $('compWrong').style.display = 'block';
+    }
+  });
+  $('compNext').addEventListener('click', function () { show('pref'); });
+
+  /* ── preference ── */
+  pickOne($('prefGroup'), function (v) { S.pref = v; $('prefErr').style.display = 'none'; });
+  $('prefNext').addEventListener('click', function () {
+    if (S.pref === null) { $('prefErr').style.display = 'block'; return; }
+    if (S.pref === 0) {           // not interested: skip WTP + hypothetical, keep endowment
+      S.wtp = null; S.bdmX = null; S.bought = false;
+      show('efficacy');
+    } else {
+      $('wtpPrefLabel').textContent = rankByKey(S.pref).text;
+      show('wtp');
+    }
+  });
+
+  /* ── WTP + BDM ── */
+  $('wtpNext').addEventListener('click', function () {
+    if (S.bought !== null) return;   // double-click guard
+    var v = $('wtpSelect').value;
+    if (v === '') { $('wtpErr').style.display = 'block'; return; }
+    $('wtpErr').style.display = 'none';
+    S.wtp = parseInt(v, 10);
+    S.bdmX = [0,10,20,30,40,50,60,70,80,90,100][Math.floor(Math.random() * 11)];
+    S.bought = S.wtp >= S.bdmX;
+    /* grey out the first pick on the hypothetical page */
+    var btns = document.querySelectorAll('#pref2Group .optbtn');
+    for (var i = 0; i < btns.length; i++) {
+      if (parseInt(btns[i].getAttribute('data-v'), 10) === S.pref) btns[i].classList.add('dis');
+    }
+    show('pref2');
+  });
+
+  /* ── hypothetical second preference ── */
+  pickOne($('pref2Group'), function (v) { S.pref2 = v; $('pref2Err').style.display = 'none'; });
+  $('pref2Next').addEventListener('click', function () {
+    if (S.pref2 === null) { $('pref2Err').style.display = 'block'; return; }
+    show('efficacy');
+  });
+
+  /* ── efficacy ── */
+  pickOne($('effConfGroup'), function (v) { S.effConf = v; });
+  $('effNext').addEventListener('click', function () {
+    var v = parseInt($('effInput').value, 10);
+    if (isNaN(v) || v < 0 || v > 30 || S.effConf === null) { $('effErr').style.display = 'block'; return; }
+    $('effErr').style.display = 'none';
+    S.eff = v;
+    if (S.pref === 0) { renderFeedback(); show('feedback'); }
+    else { $('fexpLabel').textContent = rankByKey(S.pref).text; show('fexp'); }
+  });
+
+  /* ── feedback expectation ── */
+  $('fexpNext').addEventListener('click', function () {
+    var v = parseInt($('fexpInput').value, 10);
+    if (isNaN(v) || v < 0 || v > 30) { $('fexpErr').style.display = 'block'; return; }
+    $('fexpErr').style.display = 'none';
+    S.fexp = v;
+    renderFeedback();
+    show('feedback');
+  });
+
+  function renderFeedback() {
+    var html;
+    if (S.pref !== 0 && S.bought) {
+      var r = rankByKey(S.pref);
+      html = '<p>Based on your decisions and the random draws by the computer, you will now receive information about the average performance of those participants in <b>' + r.text + '</b>.</p>' +
+             '<p>On average, these participants solved <b>' + r.avg + '</b> puzzles correctly in Part 1.</p>';
+    } else {
+      html = '<p>Based on your decisions and the random draws by the computer, you would not be receiving any information about the performance of other participants.</p>';
+    }
+    html += '<p>Please click "Next" to proceed.</p>';
+    $('feedbackBody').innerHTML = html;
+    buildDebrief();
+  }
+
+  /* ── debrief ── */
+  function stat(k, v) { return '<div class="stat"><div class="k">' + k + '</div><div class="v">' + v + '</div></div>'; }
+  function orDash(v, suffix) { return v === null ? '—' : v + (suffix || ''); }
+  function buildDebrief() {
+    var g = $('statGrid');
+    var prefTxt = S.pref === null ? '—' : (S.pref === 0 ? 'Not interested' : rankByKey(S.pref).text);
+    var bdmTxt;
+    if (S.pref === 0) {
+      bdmTxt = stat('Information outcome', 'No information <small>you kept the 100 ECU endowment</small>');
+    } else if (S.bought === null) {
+      bdmTxt = stat('BDM draw', '—');
+    } else if (S.bought) {
+      bdmTxt = stat('BDM draw', 'Price ' + S.bdmX + ' ECU <small>≤ your WTP — you paid ' + S.bdmX + ' and got the information' + (S.fexp !== null ? ' (you expected ' + S.fexp + ', it was ' + rankByKey(S.pref).avg + ')' : '') + '</small>');
+    } else {
+      bdmTxt = stat('BDM draw', 'Price ' + S.bdmX + ' ECU <small>above your WTP — no purchase, no information</small>');
+    }
+    g.innerHTML =
+      stat('Your condition', (S.treatment === 1 ? 'Non-instrumental' : 'Instrumental') + ' <small>(randomly assigned)</small>') +
+      stat('Demo puzzles', S.correct + ' / ' + S.attempted + ' correct <small>assigned Part-1 score: ' + orDash(S.score, '/30') + '</small>') +
+      stat('Your belief: own score', orDash(S.befAbs, ' / 30') + ' <small>actual (demo): ' + orDash(S.score, '') + '</small>') +
+      stat('Noisy score shown', orDash(S.noisy, '') + (S.noise !== null ? ' <small>= ' + S.score + ' + X, X = ' + (S.noise > 0 ? '+' : '') + S.noise + '</small>' : '')) +
+      stat('Mean rank belief', orDash(S.relMean, '') + ' <small>1 = bottom quintile … 5 = top</small>') +
+      stat('BDM comprehension', (S.compAttempts === 0 ? 'passed first try' : S.compAttempts + ' wrong attempt' + (S.compAttempts > 1 ? 's' : '')) + ' <small>attempts are logged in the study</small>') +
+      stat('Information preference', prefTxt + (S.wtp !== null ? ' <small>WTP ' + S.wtp + ' / 100 ECU</small>' : '') + (S.pref2 !== null ? ' <small>· hypothetical 2nd: ' + (S.pref2 === 0 ? 'Not interested' : rankByKey(S.pref2).text) + '</small>' : '')) +
+      bdmTxt +
+      stat('Expected own Part-4 score', orDash(S.eff, ' / 30') + ' <small>self-efficacy measure</small>');
+  }
+
+  $('replayBtn').addEventListener('click', function () { window.location.reload(); });
+
+  /* debug/testing hook */
+  window.__demo = {
+    get state() { return { S: S, timerId: timerId, remaining: remaining }; },
+    forceTreatment: function (t) { S.treatment = t; }
+  };
+})();
+</script>
+</body>
+</html>

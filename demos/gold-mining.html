@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gold-Mining Game — Interactive Demo — Lingguo (Lin) Xu</title>
+  <meta name="description" content="Playable demo of the gold-mining lab experiment from 'Anticipatory Utility as a Buffer Against Consumption Delays' (Lingguo Xu). Full instruction sequence, the waiting task, the randomly assigned delay, and the valuation elicitation.">
+  <link rel="canonical" href="https://www.lingguoxu.com/demos/gold-mining.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Gold-Mining Game — Interactive Demo">
+  <meta property="og:description" content="Play a condensed replica of the lab experiment behind 'Anticipatory Utility as a Buffer Against Consumption Delays'.">
+  <meta property="og:url" content="https://www.lingguoxu.com/demos/gold-mining.html">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;0,700;1,400&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --dark:    #0f1b2d;
+      --dark2:   #1a2e4a;
+      --accent:  #c4993a;
+      --blue:    #2d6cbe;
+      --bg:      #f8f7f3;
+      --bg2:     #eeecea;
+      --text:    #1a1a24;
+      --muted:   #64748b;
+      --border:  #ddd9d2;
+      --card:    #ffffff;
+      --font-serif: 'Crimson Pro', Georgia, serif;
+      --font-sans:  'IBM Plex Sans', system-ui, sans-serif;
+      --font-mono:  'IBM Plex Mono', monospace;
+      /* experiment-world (oTree/Bootstrap) colors */
+      --ot-primary: #007bff;
+      --ot-success: #28a745;
+      --ot-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; }
+    body { background: var(--bg); color: var(--text); font-family: var(--font-sans); line-height: 1.6; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Site chrome ─────────────────────────────── */
+    .topbar {
+      background: var(--dark); color: #fff;
+      padding: .8rem 1.4rem;
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    }
+    .topbar .back { color: rgba(255,255,255,.65); font-size: .82rem; white-space: nowrap; }
+    .topbar .back:hover { color: var(--accent); text-decoration: none; }
+    .topbar .tb-title { font-family: var(--font-serif); font-size: 1.05rem; font-weight: 600; flex: 1; min-width: 200px; }
+    .badge-replica {
+      font-family: var(--font-mono); font-size: .62rem; letter-spacing: .08em; text-transform: uppercase;
+      background: rgba(196,153,58,.18); border: 1px solid rgba(196,153,58,.55); color: var(--accent);
+      padding: .18rem .55rem; border-radius: 3px; white-space: nowrap;
+    }
+    .tb-btn {
+      font-family: var(--font-mono); font-size: .68rem; letter-spacing: .05em;
+      background: transparent; border: 1px solid rgba(255,255,255,.3); color: rgba(255,255,255,.75);
+      padding: .3rem .7rem; border-radius: 4px; cursor: pointer; white-space: nowrap;
+    }
+    .tb-btn:hover { border-color: var(--accent); color: #fff; }
+    .tb-btn .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #555; margin-right: .4rem; vertical-align: 1px; }
+    body.notes-on .tb-btn .dot { background: var(--accent); }
+
+    /* ── Layout ──────────────────────────────────── */
+    .wrap { max-width: 900px; margin: 0 auto; padding: 1.6rem 1.2rem 3rem; }
+
+    /* researcher-note callouts */
+    .rnote {
+      display: none;
+      background: #fdf8ec; border: 1px solid rgba(196,153,58,.45); border-left: 4px solid var(--accent);
+      border-radius: 4px; padding: .7rem .95rem; margin: 1.1rem 0 .2rem;
+      font-family: var(--font-sans); font-size: .82rem; color: #4a3f26; line-height: 1.55;
+    }
+    .rnote strong { color: #8a6722; font-weight: 600; }
+    .rnote .rn-tag {
+      font-family: var(--font-mono); font-size: .6rem; text-transform: uppercase; letter-spacing: .1em;
+      color: #8a6722; display: block; margin-bottom: .25rem;
+    }
+    body.notes-on .rnote { display: block; }
+
+    /* demo-control strip (clearly not part of the study) */
+    .demo-controls {
+      margin-top: .9rem; text-align: center;
+      font-family: var(--font-mono); font-size: .72rem; color: var(--muted);
+    }
+    .demo-controls button {
+      font-family: var(--font-mono); font-size: .72rem; color: var(--muted);
+      background: transparent; border: 1px dashed var(--border); border-radius: 4px;
+      padding: .25rem .7rem; cursor: pointer;
+    }
+    .demo-controls button:hover { color: var(--text); border-color: var(--muted); }
+
+    /* ── Experiment stage (oTree replica) ────────── */
+    .stage {
+      background: var(--card); border: 1px solid var(--border); border-radius: 6px;
+      box-shadow: 0 2px 14px rgba(15,27,45,.07);
+      padding: 1.6rem 2rem 2rem;
+      font-family: var(--ot-font);
+      min-height: 420px;
+      position: relative;
+    }
+    .stage.flush { padding: 0; overflow: hidden; }
+    .ot-earnings { text-align: right; font-size: .8rem; color: #333; }
+    .ot-timer { text-align: right; font-size: .8rem; color: #333; margin-top: .15rem; }
+    .ot-timer .t { font-weight: 600; font-variant-numeric: tabular-nums; }
+    .ot-title { text-align: center; font-size: 1.45rem; font-weight: 500; margin: .3rem 0 .6rem; line-height: 1.35; }
+    .ot-title small { display: block; font-size: .85rem; color: #444; margin-top: .2rem; }
+    .stage hr { border: none; border-top: 1px solid #ddd; margin: .8rem 0 1.2rem; }
+    .ot-body p { font-size: 1.06rem; margin-bottom: 1rem; color: #212529; }
+    .ot-body ol, .ot-body ul { font-size: 1.06rem; color: #212529; margin: 0 0 1rem 1.4rem; }
+    .ot-body li { margin-bottom: .5rem; }
+    .ot-body img { max-width: 100%; }
+    .btn { display: inline-block; border: none; border-radius: 4px; padding: .5rem 1.1rem; font-size: 1rem; cursor: pointer; font-family: inherit; }
+    .btn-primary { background: var(--ot-primary); color: #fff; }
+    .btn-primary:hover { background: #0069d9; }
+    .btn-success { background: var(--ot-success); color: #fff; }
+    .btn-success:hover { background: #218838; }
+    .btn[disabled] { opacity: .55; cursor: not-allowed; }
+    .btn-next-row { text-align: right; margin-top: 1.6rem; }
+    .btn-split { display: flex; justify-content: space-between; margin-top: 1.6rem; }
+    .center { text-align: center; }
+    .ot-input {
+      font-size: 1rem; padding: .45rem .6rem; border: 1px solid #ced4da; border-radius: 4px; width: 240px; max-width: 100%;
+      font-family: inherit;
+    }
+    .ot-label { display: block; font-size: 1rem; margin-bottom: .35rem; color: #212529; }
+    .ot-error { color: #b02a37; font-size: .88rem; margin-top: .35rem; display: none; }
+    .ot-feedback { display: none; color: #b02a37; font-size: .95rem; margin-top: 1rem; line-height: 1.5; }
+    .ot-feedback.good { color: #212529; }
+    .fineprint { font-size: .8rem; color: #666; }
+    textarea.ot-input { width: 100%; min-height: 90px; resize: vertical; }
+
+    /* tabbed instruction pages */
+    .tab { display: none; }
+
+    /* attention pledge (navy panel) */
+    .pledge-panel { background: #00437d; color: #fff; padding: 2.2rem 2.4rem 2.6rem; min-height: 420px; }
+    .pledge-panel p { color: #fff; font-size: 1.02rem; text-align: justify; margin-bottom: 1rem; }
+    .pledge-panel h1 { text-align: center; font-size: 1.7rem; margin: .6rem 0 1rem; font-weight: 700; font-family: inherit; }
+    .pledge-panel h2 { font-size: 1.25rem; margin-bottom: .8rem; font-weight: 600; font-family: inherit; }
+    .pledge-item { display: block; position: relative; padding-left: 38px; margin-bottom: 1.1rem; cursor: pointer; font-size: 1.02rem; line-height: 1.5; }
+    .pledge-item input { position: absolute; opacity: 0; cursor: pointer; }
+    .pledge-item .mark { position: absolute; top: 3px; left: 0; height: 25px; width: 25px; background-color: lightgray; }
+    .pledge-item:hover input ~ .mark { background-color: gray; }
+    .pledge-item input:checked ~ .mark { background-color: green; }
+    .pledge-item .mark:after { content: ""; position: absolute; display: none; left: 9px; top: 5px; width: 6px; height: 12px; border: solid #fff; border-width: 0 3px 3px 0; transform: rotate(45deg); }
+    .pledge-item input:checked ~ .mark:after { display: block; }
+
+    /* mining progress view */
+    .mining-cols { display: flex; gap: 1.2rem; align-items: center; justify-content: center; flex-wrap: wrap; margin-top: .8rem; }
+    .mining-cols .col { flex: 1 1 260px; max-width: 340px; }
+    .nugget-fill { position: relative; width: 100%; aspect-ratio: 1.02 / 1; overflow: hidden; }
+    .nugget-fill img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+    .nugget-fill .base { filter: grayscale(1) brightness(1.5); opacity: .3; }
+    .nugget-fill .fill { clip-path: inset(0 100% 0 0); transition: clip-path 1.2s ease; }
+    .nugget-fill .edge { position: absolute; top: 4%; bottom: 4%; left: 0; width: 2px; background: var(--accent); box-shadow: 0 0 6px rgba(196,153,58,.8); transition: left 1.2s ease; }
+    .nugget-pct { text-align: center; font-size: .95rem; color: #333; margin-top: .4rem; font-variant-numeric: tabular-nums; }
+
+    .trivia-box { margin-top: 2.4rem; text-align: center; }
+    .trivia-box h4 { font-size: .95rem; font-weight: 600; color: #333; }
+    .trivia-box hr { width: 60%; margin: .35rem auto .8rem; }
+    .trivia-box p { font-size: .88rem; color: #444; text-align: left; max-width: 620px; margin: 0 auto; }
+
+    /* scale buttons (0-10 excitement) */
+    .scalegroup { display: flex; flex-wrap: wrap; gap: .5rem; margin: .6rem 0 .4rem; }
+    .scalebtn {
+      font-family: inherit; font-size: .95rem; min-width: 44px;
+      background: #fff; color: #212529; border: 1px solid #198754; border-radius: 5px;
+      padding: .45rem .5rem; cursor: pointer; text-align: center;
+    }
+    .scalebtn:hover { background: #eaf6ef; }
+    .scalebtn.sel { background: var(--ot-success); color: #fff; }
+
+    /* intro & debrief (site voice) */
+    .site-voice { font-family: var(--font-sans); }
+    .site-voice h1 { font-family: var(--font-serif); font-size: 2rem; font-weight: 700; margin-bottom: .6rem; color: var(--dark); }
+    .site-voice h2 { font-family: var(--font-serif); font-size: 1.35rem; font-weight: 600; margin: 1.4rem 0 .5rem; color: var(--dark); }
+    .site-voice p { font-size: .95rem; margin-bottom: .8rem; color: var(--text); }
+    .site-voice .eyebrow { font-family: var(--font-mono); font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-bottom: .5rem; }
+    .site-voice ul { margin: 0 0 .9rem 1.2rem; font-size: .92rem; }
+    .site-voice li { margin-bottom: .35rem; }
+    .btn-gold {
+      display: inline-block; background: var(--dark); color: #fff; border: none; border-radius: 4px;
+      font-family: var(--font-sans); font-size: .95rem; font-weight: 500;
+      padding: .6rem 1.5rem; cursor: pointer; text-decoration: none;
+    }
+    .btn-gold:hover { background: var(--dark2); }
+    .btn-outline {
+      display: inline-block; background: transparent; color: var(--dark); border: 1px solid var(--border); border-radius: 4px;
+      font-family: var(--font-sans); font-size: .88rem; padding: .55rem 1.2rem; cursor: pointer; text-decoration: none;
+    }
+    .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: .8rem; margin: 1rem 0 1.4rem; }
+    .stat {
+      background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: .7rem .9rem;
+    }
+    .stat .k { font-family: var(--font-mono); font-size: .62rem; text-transform: uppercase; letter-spacing: .09em; color: var(--muted); margin-bottom: .2rem; }
+    .stat .v { font-family: var(--font-serif); font-size: 1.25rem; font-weight: 600; color: var(--dark); line-height: 1.25; }
+    .stat .v small { font-size: .78rem; font-family: var(--font-sans); font-weight: 400; color: var(--muted); }
+
+    .footer-note {
+      max-width: 900px; margin: 0 auto; padding: 0 1.2rem 2.5rem;
+      font-size: .78rem; color: var(--muted); text-align: center;
+    }
+    .screen { display: none; }
+    .screen.active { display: block; }
+    @media (max-width: 640px) {
+      .stage { padding: 1.1rem 1rem 1.4rem; }
+      .stage.flush { padding: 0; }
+      .pledge-panel { padding: 1.4rem 1.1rem 1.8rem; }
+      .topbar .tb-title { font-size: .92rem; }
+    }
+  </style>
+</head>
+<body class="notes-on">
+
+  <div class="topbar">
+    <a class="back" href="../experiments.html">← Experiments</a>
+    <div class="tb-title">Gold-Mining Game — Interactive Demo</div>
+    <span class="badge-replica">Replica · no data collected</span>
+    <button class="tb-btn" id="notesToggle" type="button"><span class="dot"></span>Researcher notes: <span id="notesState">ON</span></button>
+    <button class="tb-btn" id="jumpDebrief" type="button">Skip to debrief ↦</button>
+  </div>
+
+  <div class="wrap">
+
+    <!-- ══ 0 · INTRO (site voice) ══ -->
+    <section class="screen active site-voice" id="scr-intro">
+      <p class="eyebrow">// interactive demo · ~4 minutes</p>
+      <h1>Play the gold-mining experiment</h1>
+      <p>
+        This is a condensed, playable replica of the laboratory experiment in
+        <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5821582" target="_blank" rel="noopener"><em>Anticipatory Utility as a Buffer Against Consumption Delays</em></a>
+        (solo-authored; N&nbsp;=&nbsp;360, University of Melbourne experimental economics lab). You will go through the screens participants saw,
+        in order: the attention pledge, the mining-game instructions, the incentive-compatibility training, the soil-sample information offer,
+        the waiting task, and — depending on a random draw — an unexpected delay before you learn what the nugget is worth.
+      </p>
+      <ul>
+        <li><strong>Condensed:</strong> 2 brain-teaser rounds instead of 15, and waits of seconds instead of minutes. Everything else follows the original page sequence.</li>
+        <li><strong>Faithful:</strong> instructions, artwork, elicitations, comprehension checks, and payoff rules are taken from the original oTree code.</li>
+        <li><strong>Private:</strong> this page runs entirely in your browser — nothing you do here is recorded.</li>
+      </ul>
+      <p>
+        Like the real participants, you will be <strong>randomly assigned</strong> to the <em>No-Delay</em> or <em>Delay</em> condition.
+        Toggle <strong>Researcher notes</strong> (top right) to see what each screen measures, or <strong>Skip to debrief</strong> at any time.
+      </p>
+      <p style="margin-top:1.3rem;">
+        <button class="btn-gold" id="startBtn" type="button">Start the demo →</button>
+      </p>
+    </section>
+
+    <!-- ══ 1 · ATTENTION PLEDGE ══ -->
+    <section class="screen" id="scr-pledge">
+      <div class="stage flush">
+        <div class="pledge-panel">
+          <p>
+            Thank you for participating in the experiment. We ask that you give us your full attention throughout the experiment.
+            Please refrain from all other activities, including using your phone and browsing the internet. If we find that you are not paying
+            attention or are violating any rules you will be dismissed without pay.
+          </p>
+          <h1>Full attention pledge</h1>
+          <h2>I pledge to:</h2>
+          <label class="pledge-item">Devote my full attention to the experiment and not engage in other activities, such as browsing the Internet.
+            <input type="checkbox" id="pl1"><span class="mark"></span>
+          </label>
+          <label class="pledge-item">Put my mobile device in silent mode and not use them during the experiment.
+            <input type="checkbox" id="pl2"><span class="mark"></span>
+          </label>
+          <label class="pledge-item">Not communicate with any other participants during the experiment.
+            <input type="checkbox" id="pl3"><span class="mark"></span>
+          </label>
+          <div class="center" style="margin-top:1.4rem;">
+            <button class="btn btn-success" id="pledgeSubmit" type="button">Submit</button>
+          </div>
+          <div id="pledgeStart" style="display:none;" class="center">
+            <p style="margin-top:1.2rem;">Thank you. You may now start the experiment.</p>
+            <button class="btn btn-primary" data-next="overview" type="button">Start the experiment</button>
+          </div>
+          <div id="pledgeRedo" style="display:none;" class="center">
+            <p style="margin-top:1.2rem;">You must click all the checkboxes to proceed.</p>
+          </div>
+        </div>
+      </div>
+      <aside class="rnote"><span class="rn-tag">Researcher note</span>
+        Sessions opened with a signed attention pledge (shown in the lab under the University of Melbourne header). A small commitment device:
+        pledges of this kind measurably improve data quality in lab and online experiments.
+      </aside>
+    </section>
+
+    <!-- ══ 2 · OVERVIEW ══ -->
+    <section class="screen" id="scr-overview">
+      <div class="stage">
+        <div class="ot-earnings">Total earnings so far: <span class="earn">250</span> ECU</div>
+        <div class="ot-title">Overview of Study<small>(Please read this page carefully)</small></div>
+        <hr>
+        <div class="ot-body">
+          <p>In this experiment, you will be playing <b>a gold mining game in which a miner will be working on mining some gold</b> for you.
+             Please read all the instructions carefully. A clear understanding of the instructions is critical for making decisions and earning money in the experiment.</p>
+          <p>There are four parts to the experiment. You will receive instructions for each part and will also be asked to complete a short survey after Part 4.</p>
+          <p>In this experiment, all payments are expressed in <b>Experimental Currency Units (ECU)</b>.
+             Your payments will be converted to Australian dollars (AUD) at a rate of 50&nbsp;ECU&nbsp;=&nbsp;1&nbsp;AUD and will be paid to you privately at the end of the experiment.</p>
+          <p>You will receive 250 ECU for participating in the experiment, and you may earn additional payments throughout the experiment.</p>
+        </div>
+        <div class="btn-next-row"><button class="btn btn-primary" data-next="inst1" type="button">Next</button></div>
+      </div>
+      <aside class="rnote"><span class="rn-tag">Researcher note</span>
+        A real-stakes lab study: incentive-compatible payments at 50&nbsp;ECU&nbsp;=&nbsp;AU$1 plus the 250&nbsp;ECU participation fee, credited in the
+        earnings ticker above — exactly as participants saw it.
+      </aside>
+    </section>
+
+    <!-- ══ 3 · INSTRUCTION 1: THE MINING GAME (3 tabs) ══ -->
+    <section class="screen" id="scr-inst1">
+      <div class="stage">
+        <div class="tab">
+          <div class="ot-title">Part 1 - The mining game<small>(Instruction 1/3)</small></div>
+          <div class="ot-earnings">Total earnings so far: <span class="earn">250</span> ECU</div>
+          <hr>
+          <div class="ot-body">
+            <p>In this experiment, you will participate in a <b>gold mining</b> game. The rules are simple:</p>
+            <ol>
+              <li>A miner will work on mining some gold for you.</li>
+              <li>The mining will take some time, and in the end, the miner might <b>find nothing or a valuable gold nugget</b>.</li>
+              <li>All you need to do is wait for the mining to be completed.</li>
+            </ol>
+            <p class="center"><img src="img/miner1.jpg" alt="A miner at work" style="width:55%;min-width:220px;border-radius:4px;"></p>
+          </div>
+          <div class="btn-next-row"><button class="btn btn-primary btn-tab" data-offset="1" type="button">Next</button></div>
+        </div>
+        <div class="tab">
+          <div class="ot-title">Part 1 - The mining game<small>(Instruction 2/3)</small></div>
+          <div class="ot-earnings">Total earnings so far: <span class="earn">250</span> ECU</div>
+          <hr>
+          <div class="ot-body">
+            <p>If the miner finds a gold nugget, it may be worth anywhere between <b>680 and 865 ECU</b>.</p>
+            <p>The value of the gold nugget <b>will be added to your earnings</b>.</p>
+          </div>
+          <div class="btn-split">
+            <button class="btn btn-primary btn-tab" data-offset="-1" type="button">Previous</button>
+            <button class="btn btn-primary btn-tab" data-offset="1" type="button">Next</button>
+          </div>
+        </div>
+        <div class="tab">
+          <div class="ot-title">Part 1 - The mining game<small>(Instruction 3/3)</small></div>
+          <div class="ot-earnings">Total earnings so far: <span class="earn">250</span> ECU</div>
+          <hr>
+          <div class="ot-body">
+            <p>For the mining process, a miner <b>randomly picks a spot</b> to start digging. Whether the miner finds a gold nugget depends entirely on the location chosen.</p>
+            <p>In other words, once the miner picks a spot, the outcome of the mining is determined, and there is nothing you can do to change it.</p>
+            <p>The mining process should take about 10 minutes, but it may take longer.</p>
+          </div>
+          <div class="btn-split">
+            <button class="btn btn-primary btn-tab" data-offset="-1" type="button">Previous</button>
+            <button class="btn btn-primary" data-next="bdm" type="button">Next</button>
+          </div>
+        </div>
+      </div>
+      <aside class="rnote"><span class="rn-tag">Researcher note · the framing</span>
+        The gold-mining frame gives every participant an identical near-future "utility event" of uncertain size — a nugget worth 680–865 ECU —
+        with the outcome fixed the moment the miner picks a spot. That last sentence matters: it makes all later information
+        <em>non-instrumental</em> by construction. Nothing you learn can change what happens.
+      </aside>
+    </section>
+
+    <!-- ══ 4 · BDM TRAINING (5 tabs, interactive comprehension) ══ -->
+    <section class="screen" id="scr-bdm">
+      <div class="stage">
+        <div class="tab">
+          <div class="ot-title">Part 1 - Your valuation for an item<small>(1/4)</small></div>
+          <div class="ot-earnings">Total earnings so far: <span class="earn">250</span> ECU</div>
+          <hr>
+          <div class="ot-body">
+            <p>At various points throughout the experiment, we will ask you to state the value you place on an item or the amount you are willing to pay to be informed about certain events.</p>
+            <p>We will use a mechanism that ensures it is always in your best interest to report your <b>value or willingness to pay truthfully</b>.</p>
+            <p>Please click the "Next" button to see how this works.</p>
+          </div>
+          <div class="btn-next-row"><button class="btn btn-primary btn-tab" data-offset="1" type="button">Next</button></div>
+        </div>
+        <div class="tab">
+          <div class="ot-title">Part 1 - Your valuation for an item<small>(2/4)</small></div>
+          <div class="ot-earnings">Total earnings so far: <span class="earn">250</span> ECU</div>
+          <hr>
+          <div class="ot-body">
+            <p>Suppose that a person has an item you wish to buy. The exchange can occur at any price between 0 and 100 ECU.</p>
+            <p>You privately value this item at 70 ECU.</p>
+            <p>Now, this person, unaware of how much you value the item, will randomly select a price between 0 and 100 ECU and write it down on a piece of paper.</p>
+            <p class="center"><img src="img/bdm.jpg" alt="A person writing a price on paper" style="width:30%;min-width:170px;border-radius:4px;"></p>
+          </div>
+          <div class="btn-split">
+            <button class="btn btn-primary btn-tab" data-offset="-1" type="button">Previous</button>
+            <button class="btn btn-primary btn-tab" data-offset="1" type="button">Next</button>
+          </div>
+        </div>
+        <div class="tab">
+          <div class="ot-title">Part 1 - Your valuation for an item<small>(3/4)</small></div>
+          <div class="ot-earnings">Total earnings so far: <span class="earn">250</span> ECU</div>
+          <hr>
+          <div class="ot-body">
+            <p>Now, you will decide how much you are willing to pay for the item, if:</p>
+            <ul>
+              <li>The amount you are willing to pay <b>≥</b> The price the person wrote down ⇒ You <b>will get</b> the item and pay the price the person wrote down</li>
+              <li>The amount you are willing to pay <b>&lt;</b> The price the person wrote down ⇒ You <b>will not get</b> the item and will not pay anything</li>
+            </ul>
+            <p>Note: if you get the item, you only need to pay the <b>price the person wrote down, not the amount you were willing to pay!</b></p>
+          </div>
+          <div class="btn-split">
+            <button class="btn btn-primary btn-tab" data-offset="-1" type="button">Previous</button>
+            <button class="btn btn-primary btn-tab" data-offset="1" type="button">Next</button>
+          </div>
+        </div>
+        <div class="tab">
+          <div class="ot-title">Part 1 - Your valuation for an item<small>(4/4)</small></div>
+          <div class="ot-earnings">Total earnings so far: <span class="earn">250</span> ECU</div>
+          <hr>
+          <div class="ot-body">
+            <p>Now, as an exercise, let's suppose the person has written down his price. It is time for you to decide on your willingness to pay. Which number would you choose?</p>
+            <label class="ot-label" for="bdmInput">Please fill in a number between 0 and 100.</label>
+            <input class="ot-input" id="bdmInput" type="number" min="0" max="100" step="1" inputmode="numeric">
+            <p style="margin-top:1rem;">Recall that you value the item at 70.</p>
+            <p class="center"><button class="btn btn-success" id="bdmCheck" type="button">Check Answer</button></p>
+            <div class="ot-feedback" id="bdmLow">
+              <p><b>This amount is too low.</b></p>
+              <p>You picked a number less than 70. Let's suppose the person wrote down a price between your number and 70. In this case, you will not get the item,
+                 even though you would be better off if you had entered your valuation for the item (70) and obtained the item at the price the person wrote down, which is less than 70.</p>
+              <p>Please try again.</p>
+            </div>
+            <div class="ot-feedback" id="bdmHigh">
+              <p><b>This amount is too high.</b></p>
+              <p>You picked a number larger than 70. Let's suppose the person wrote down a price between 70 and the amount you are willing to pay.
+                 In this case, you will get the item, but you will be worse off because you will pay the price the person wrote down, which is higher than the item's worth to you (70).</p>
+              <p>Please try again.</p>
+            </div>
+            <div class="ot-feedback good" id="bdmGood">
+              <p><b>This amount is the best.</b></p>
+              <p>When you choose 70 ECU, regardless of the price the other person wrote down, you will not be worse off.</p>
+              <ul>
+                <li>If the person wrote down a price higher than 70 ECU, you will not get the item because the price is too high for you.</li>
+                <li>If the person wrote down a price lower than or equal to 70 ECU, you will get the item and pay the price the person has written down.
+                    This is still a good deal because the price you pay will be no more than your valuation of the item.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="btn-split">
+            <button class="btn btn-primary btn-tab" data-offset="-1" type="button">Previous</button>
+            <button class="btn btn-primary btn-tab" data-offset="1" id="bdmNext" type="button" style="visibility:hidden;">Next</button>
+          </div>
+        </div>
+        <div class="tab">
+          <div class="ot-title">Part 1 - Your valuation for an item</div>
+          <div class="ot-earnings">Total earnings so far: <span class="earn">250</span> ECU</div>
+          <hr>
+          <div class="ot-body">
+            <p>In the later part of the experiment, we may ask you to specify the price at which you are willing to sell an item.</p>
+            <p>Similarly, it is in your best interest to simply state how much you value the item.</p>
+          </div>
+          <div class="btn-split">
+            <button class="btn btn-primary btn-tab" data-offset="-1" type="button">Previous</button>
+            <button class="btn btn-primary" data-next="soil" type="button">Next</button>
+          </div>
+        </div>
+      </div>
+      <aside class="rnote"><span class="rn-tag">Researcher note · incentive-compatibility training</span>
+        Every valuation in the study runs through a Becker–DeGroot–Marschak mechanism, so participants are trained on it before any real decision —
+        and must pass this exercise (answer: 70) to proceed. Wrong answers get the exact diagnosis you see here, and the number of attempts is logged
+        as a comprehension measure.
+      </aside>
+    </section>
+
+    <!-- ══ 5 · SOIL SAMPLE (4 tabs, ends with the WTP decision) ══ -->
+    <section class="screen" id="scr-soil">
+      <div class="stage">
+        <div class="tab">
+          <div class="ot-title">Part 1 - A soil sample<small>(Page 1 of 4)</small></div>
+          <div class="ot-earnings">Total earnings so far: <span class="earn">250</span> ECU</div>
+          <hr>
+          <div class="ot-body">
+            <p>The miner has just picked a spot and started digging.</p>
+            <p>The outcome of the mining, i.e., whether the miner will find nothing or a valuable gold nugget, is now determined.</p>
+          </div>
+          <div class="btn-next-row"><button class="btn btn-primary btn-tab" data-offset="1" type="button">Next</button></div>
+        </div>
+        <div class="tab">
+          <div class="ot-title">Part 1 - A soil sample<small>(Page 2 of 4)</small></div>
+          <div class="ot-earnings">Total earnings so far: <span class="earn">250</span> ECU</div>
+          <hr>
+          <div class="ot-body">
+            <p>But before he digs any further, the miner will first collect <b>a soil sample</b> and wash it in a river to see if there is any <b>gold dust</b> in it.</p>
+            <p class="center"><img src="img/washing1.jpg" alt="Washing a soil sample in the river" style="width:46%;min-width:200px;border-radius:4px;"></p>
+            <p>If there is gold dust (see picture below), <b>it is very likely that the miner will find a gold nugget</b>, though the value of the gold nugget is still uncertain.</p>
+            <p class="center"><img src="img/specks1.jpg" alt="Gold dust in the pan" style="width:46%;min-width:200px;border-radius:4px;"></p>
+            <p>The miner could still find gold in the end, even if there is no gold dust in the pan.</p>
+          </div>
+          <div class="btn-split">
+            <button class="btn btn-primary btn-tab" data-offset="-1" type="button">Previous</button>
+            <button class="btn btn-primary btn-tab" data-offset="1" type="button">Next</button>
+          </div>
+        </div>
+        <div class="tab">
+          <div class="ot-title">Part 1 - A soil sample<small>(Page 3 of 4)</small></div>
+          <div class="ot-earnings">Total earnings so far: <span class="earn">250</span> ECU</div>
+          <hr>
+          <div class="ot-body">
+            <p>The miner has finished washing the soil.</p>
+            <p>Before he goes back to digging, he can show you whether there is any gold dust in his pan <b>for a small charge</b>.</p>
+            <p>Note that the miner will keep digging regardless. The outcome of the mining, which depends solely on the location of the dig, is already determined.</p>
+            <p>Therefore, whether or not you choose to see what's in his pan will not affect your earnings in any way for the rest of the experiment, except for the cost you pay for the information.</p>
+          </div>
+          <div class="btn-split">
+            <button class="btn btn-primary btn-tab" data-offset="-1" type="button">Previous</button>
+            <button class="btn btn-primary btn-tab" data-offset="1" type="button">Next</button>
+          </div>
+        </div>
+        <div class="tab">
+          <div class="ot-title">Part 1 - A soil sample<small>(Page 4 of 4)</small></div>
+          <div class="ot-earnings">Total earnings so far: <span class="earn">250</span> ECU</div>
+          <hr>
+          <div class="ot-body">
+            <p>The miner has picked a price (between 0 and 50 ECU) and has written it down on a piece of paper.</p>
+            <p class="center"><img src="img/bdm.jpg" alt="The miner writing a price on paper" style="width:30%;min-width:170px;border-radius:4px;"></p>
+            <p>Now, please select the amount of ECU you are willing to pay to see if there is any gold dust in the soil sample.</p>
+            <label class="ot-label" for="wtpInput">Please fill in a number between 0 and 50.</label>
+            <input class="ot-input" id="wtpInput" type="number" min="0" max="50" step="1" inputmode="numeric">
+            <div class="ot-error" id="wtpErr">Please fill in a number between 0 and 50.</div>
+            <p style="margin-top:1rem;">Note that the outcome of this exchange will be based on the mechanism outlined at the beginning of the experiment.
+               It is in your best interest to simply fill in the amount you are willing to pay for this information.</p>
+          </div>
+          <div class="btn-split">
+            <button class="btn btn-primary btn-tab" data-offset="-1" type="button">Previous</button>
+            <button class="btn btn-primary" id="wtpSubmit" type="button">Next</button>
+          </div>
+        </div>
+      </div>
+      <aside class="rnote"><span class="rn-tag">Researcher note · primary measure</span>
+        This is the study's <strong>primary anticipation measure</strong>: willingness to pay to see the soil sample — pure, non-instrumental early
+        information about the (already determined) outcome. Because it runs through the BDM mechanism against the miner's random price (0–50 ECU),
+        truthful bidding is optimal, and a positive bid reveals utility from <em>anticipating</em> the news, not from acting on it.
+      </aside>
+    </section>
+
+    <!-- ══ 5b · WTP RESULT (sign_wtp) ══ -->
+    <section class="screen" id="scr-wtpresult">
+      <div class="stage">
+        <div class="ot-earnings">Total earnings so far: <span class="earn">250</span> ECU</div>
+        <div class="ot-title">Part 1</div>
+        <hr>
+        <div class="ot-body">
+          <p>The miner is feeling generous and has written down a price of 0 ECU.</p>
+          <p>Therefore, you get to see if there is any gold dust in the soil sample for free.</p>
+        </div>
+        <div class="btn-next-row"><button class="btn btn-primary" data-next="specks" type="button">Next</button></div>
+      </div>
+      <aside class="rnote"><span class="rn-tag">Researcher note</span>
+        In the deployed session the miner's price resolved to zero for everyone, so <em>all</em> participants saw the soil sample and entered the
+        waiting period with the same information. The bid itself is the data: it ranks participants by anticipatory utility before the delay
+        manipulation happens.
+      </aside>
+    </section>
+
+    <!-- ══ 6 · SPECKS ══ -->
+    <section class="screen" id="scr-specks">
+      <div class="stage">
+        <div class="ot-earnings">Total earnings so far: <span class="earn">250</span> ECU</div>
+        <div class="ot-title">Part 1</div>
+        <hr>
+        <div class="ot-body">
+          <p>There is indeed <b>gold dust</b> in the soil!</p>
+          <p class="center"><img src="img/specks1.jpg" alt="Gold specks in a pan" style="width:70%;max-width:480px;border-radius:4px;"></p>
+          <p>The miner is now <b>almost certain</b> that he will find a gold nugget in the end.</p>
+        </div>
+        <div class="btn-next-row"><button class="btn btn-primary" data-next="ready" type="button">Next</button></div>
+      </div>
+      <aside class="rnote"><span class="rn-tag">Researcher note</span>
+        The pan comes up positive for everyone: a near-certain future gain of uncertain size (680–865 ECU) — the object of anticipation.
+        From here, both treatments face the same wait; only the <em>timing of the reveal</em> will differ.
+      </aside>
+    </section>
+
+    <!-- ══ 7 · READY (Part 2 intro) ══ -->
+    <section class="screen" id="scr-ready">
+      <div class="stage">
+        <div class="ot-earnings">Total earnings so far: <span class="earn">250</span> ECU</div>
+        <div class="ot-title">Part 2: the mining</div>
+        <hr>
+        <div class="ot-body">
+          <p>The miner is now ready to start the formal mining process, which should take about 10 minutes.</p>
+          <p>When you are ready, please click "Next" so the miner can resume mining.</p>
+          <p>To give you something to do during the wait, there will be 15 rounds of brain teasers.
+             Each brain teaser will be displayed on the screen for 40 seconds, and the next teaser will automatically appear after 40 seconds.
+             Please note that participation in these teasers is optional.</p>
+        </div>
+        <div class="center" style="margin-top:1.2rem;"><button class="btn btn-primary" id="readyNext" type="button">Next</button></div>
+      </div>
+      <aside class="rnote"><span class="rn-tag">Researcher note</span>
+        The filler task is deliberately <em>optional and unpaid</em> — it occupies the wait without competing with the gold for attention.
+        The demo compresses 15 × 40-second rounds into two 30-second rounds.
+      </aside>
+    </section>
+
+    <!-- ══ 8 · TASK ROUNDS ══ -->
+    <section class="screen" id="scr-task">
+      <div class="stage">
+        <div class="ot-earnings">Total earnings so far: <span class="earn">250</span> ECU</div>
+        <div class="ot-timer">Next round in: <span class="t" id="timerT">0:30</span></div>
+        <div class="ot-title">Part 2: wait for the mining to complete<small>(Round <span id="roundNum">1</span>/<span id="roundTot">2</span>)</small></div>
+        <hr>
+        <div class="ot-body">
+
+          <div id="taskBlock">
+            <p id="taskQ"><b>Question</b>: </p>
+            <p id="taskA" style="min-height:1.4em;"></p>
+            <p class="center"><button class="btn btn-success" id="checkAnswer" type="button">Check answer</button></p>
+            <div class="trivia-box">
+              <h4>Interesting facts about gold mining in Australia</h4>
+              <hr>
+              <p id="trivia"></p>
+            </div>
+            <p class="center" style="margin-top:2rem;"><button class="btn btn-success" id="checkMiner" type="button">See how the miner is doing</button></p>
+          </div>
+
+          <div id="minerBlock" style="display:none;">
+            <p class="center">The mining is going well!</p>
+            <p class="center fineprint">(Images for illustrative purposes only)</p>
+            <div class="mining-cols">
+              <div class="col"><img src="img/digging1.jpg" alt="Miner digging" style="border-radius:4px;"></div>
+              <div class="col">
+                <div class="nugget-fill">
+                  <img class="base" src="img/nugget2.png" alt="">
+                  <img class="fill" id="nuggetFill" src="img/nugget2.png" alt="Gold nugget progress">
+                  <div class="edge" id="nuggetEdge"></div>
+                </div>
+                <div class="nugget-pct" id="nuggetPct"></div>
+              </div>
+            </div>
+            <p class="center" style="margin-top:1.4rem;"><button class="btn btn-success" id="backToTask" type="button">Back to brain teaser</button></p>
+          </div>
+
+        </div>
+      </div>
+      <aside class="rnote"><span class="rn-tag">Researcher note · behavioural measure</span>
+        The round timer runs no matter what you do. Because checking cannot change the outcome, every click of
+        <strong>“See how the miner is doing”</strong> — and every second spent watching — is logged as a revealed-preference measure of anticipation
+        (savouring the news to come). At the end of the study, participants are asked to explain their own checking in an open question.
+      </aside>
+      <div class="demo-controls">demo control — <button id="skipWait" type="button">⏩ skip the rest of this round</button></div>
+    </section>
+
+    <!-- ══ 9 · DELAY NEWS (T2 only) ══ -->
+    <section class="screen" id="scr-delay">
+      <div class="stage">
+        <div class="ot-earnings">Total earnings so far: <span class="earn">250</span> ECU</div>
+        <div class="ot-title">Part 3</div>
+        <hr>
+        <div class="ot-body">
+          <p>The mining is taking longer than expected.</p>
+          <p>The outcome of the mining will be revealed in another <b>8 minutes</b>.</p>
+          <p>You can still choose to do some brain teasers while you wait.</p>
+          <p>Please note that this delay does not mean you need to spend more time in the lab. The experiment will finish within the advertised timeframe.</p>
+        </div>
+        <div class="btn-next-row"><button class="btn btn-primary" id="delayNext" type="button">Next</button></div>
+      </div>
+      <aside class="rnote"><span class="rn-tag">Researcher note · the treatment</span>
+        You were randomly assigned to the <strong>Delay</strong> condition. Random assignment is what identifies the <em>causal</em> effect of delay:
+        No-Delay participants learned the outcome immediately after the waiting task, while Delay participants got this screen and an unexpected extra
+        8-minute wait (the demo compresses it to one 30-second round). Nothing else differs between conditions.
+      </aside>
+    </section>
+
+    <!-- ══ 10 · MINING COMPLETE ══ -->
+    <section class="screen" id="scr-complete">
+      <div class="stage">
+        <div class="ot-earnings">Total earnings so far: <span class="earn">250</span> ECU</div>
+        <div class="ot-title">Part 3</div>
+        <hr>
+        <div class="ot-body">
+          <p style="margin-top:2.2rem;">The mining is now complete. You may proceed to view the outcome.</p>
+        </div>
+        <div class="btn-next-row"><button class="btn btn-primary" data-next="reveal" type="button">Next</button></div>
+      </div>
+    </section>
+
+    <!-- ══ 11 · REVEAL + WTA ══ -->
+    <section class="screen" id="scr-reveal">
+      <div class="stage">
+        <div class="ot-earnings">Total earnings so far: <span class="earn">250</span> ECU</div>
+        <div class="ot-title">Part 3<small>(Please pay extra attention to this page)</small></div>
+        <hr>
+        <div class="ot-body">
+          <div id="rv1">
+            <p>Congratulations, the miner has <b>found a gold nugget</b>!</p>
+            <p>However, the value of this nugget remains uncertain and can be anywhere between <b>680</b> and <b>865</b> ECU.</p>
+            <p class="center"><button class="btn btn-success kr" data-show="rv2" type="button">Keep reading ...</button></p>
+          </div>
+          <div id="rv2" style="display:none;">
+            <p>Before the value of the gold is determined, you now have the opportunity to <b>sell it to a buyer for cash</b>.</p>
+            <p>The buyer, who is also uncertain about the value of the gold, has written down his offer (a number between 680 and 865 ECU) on a piece of paper.</p>
+            <p class="center"><img src="img/bdm.jpg" alt="Buyer writing an offer" style="width:32%;min-width:180px;border-radius:4px;"></p>
+            <p class="center"><button class="btn btn-success kr" data-show="rv3" type="button">Keep reading ...</button></p>
+          </div>
+          <div id="rv3" style="display:none;">
+            <p>Now, how much are you willing to accept to sell the gold nugget?</p>
+            <label class="ot-label" for="wtaInput">Please enter a number between 680 and 865.</label>
+            <input class="ot-input" id="wtaInput" type="number" min="680" max="865" step="1" inputmode="numeric">
+            <div class="ot-error" id="wtaErr">Please enter a whole number between 680 and 865.</div>
+            <p style="margin-top:1rem;">Note that the gold will only be sold if the buyer's offer <b>is higher than or equal to your price</b>.
+               In that case, he will get the gold nugget and <b>pay you the price you've selected above</b>; otherwise you get to keep the gold.</p>
+            <p>You learned about this mechanism at the beginning of the experiment, so you will recall that it is in your best interest to simply state how much you value the gold nugget.</p>
+            <div class="btn-next-row"><button class="btn btn-primary" id="wtaSubmit" type="button">Next</button></div>
+          </div>
+        </div>
+      </div>
+      <aside class="rnote"><span class="rn-tag">Researcher note · outcome measure</span>
+        The dependent variable: <strong>willingness to accept</strong> for the (still-uncertain) nugget, elicited with a BDM-style buyer offer — the
+        very mechanism you were trained on in Part 1. Comparing WTA between the No-Delay and Delay conditions — and how that gap varies with the
+        anticipation measures — is the paper's core test.
+      </aside>
+    </section>
+
+    <!-- ══ 12 · OUTCOME ══ -->
+    <section class="screen" id="scr-outcome">
+      <div class="stage">
+        <div class="ot-earnings">Total earnings so far: <span class="earn">250</span> ECU</div>
+        <div class="ot-title">Part 3</div>
+        <hr>
+        <div class="ot-body" id="outcomeBody"></div>
+        <div class="btn-next-row"><button class="btn btn-primary" data-next="survey1" type="button">Next</button></div>
+      </div>
+    </section>
+
+    <!-- ══ 13 · SURVEY: WHY DID YOU CHECK ══ -->
+    <section class="screen" id="scr-survey1">
+      <div class="stage">
+        <div class="ot-earnings">Total earnings so far: <span class="earn">250</span> ECU</div>
+        <div class="ot-title">Survey</div>
+        <hr>
+        <div class="ot-body">
+          <p>While you were waiting for the mining to complete in Part 2, you clicked on the "See how the miner is doing" button
+             <b><span id="surveyChecks">0</span></b> times. Could you please explain why you wanted to check on the miner.</p>
+          <textarea class="ot-input" id="checkReason" placeholder="(optional in the demo)"></textarea>
+        </div>
+        <div class="btn-next-row"><button class="btn btn-primary" id="survey1Next" type="button">Next</button></div>
+      </div>
+      <aside class="rnote"><span class="rn-tag">Researcher note</span>
+        The survey echoes each participant's <em>own</em> click count back to them and asks for the reason in their own words — the qualitative
+        companion to the behavioural checking measure. (That number above is your real count from a minute ago.)
+      </aside>
+    </section>
+
+    <!-- ══ 13b · SURVEY: DELAY REACTION (T2 only) ══ -->
+    <section class="screen" id="scr-survey2">
+      <div class="stage">
+        <div class="ot-earnings">Total earnings so far: <span class="earn">250</span> ECU</div>
+        <div class="ot-title">Survey</div>
+        <hr>
+        <div class="ot-body">
+          <p>When it was announced in Part 3 that the mining has been delayed, what was your reaction?</p>
+          <textarea class="ot-input" id="delayReaction" placeholder="(optional in the demo)"></textarea>
+        </div>
+        <div class="btn-next-row"><button class="btn btn-primary" data-next="survey3" type="button">Next</button></div>
+      </div>
+      <aside class="rnote"><span class="rn-tag">Researcher note</span>
+        Delay-condition participants also describe their reaction to the unexpected delay in their own words — used to validate that the
+        manipulation was experienced as a genuine setback.
+      </aside>
+    </section>
+
+    <!-- ══ 13c · SURVEY: EXCITEMENT ══ -->
+    <section class="screen" id="scr-survey3">
+      <div class="stage">
+        <div class="ot-earnings">Total earnings so far: <span class="earn">250</span> ECU</div>
+        <div class="ot-title">Survey</div>
+        <hr>
+        <div class="ot-body">
+          <p>While waiting for the mining to finish in Part 2, how excited were you to learn the outcome of the mining
+             (i.e., the value of the very likely gold nugget)?</p>
+          <p>Please indicate your level of excitement on a scale of 0 to 10, with 0 representing no excitement at all.</p>
+          <div class="scalegroup" id="exciteGroup"></div>
+          <div class="ot-error" id="exciteErr">Please select a level of excitement.</div>
+        </div>
+        <div class="btn-next-row"><button class="btn btn-primary" id="survey3Next" type="button">Next</button></div>
+      </div>
+      <aside class="rnote"><span class="rn-tag">Researcher note · third measure</span>
+        <strong>Self-reported excitement</strong> during the wait completes the triangulation: one incentivized measure (WTP for the soil sample),
+        one behavioural measure (checking), one self-report. The paper's moderation result holds across all three.
+      </aside>
+    </section>
+
+    <!-- ══ 14 · DEBRIEF (site voice) ══ -->
+    <section class="screen site-voice" id="scr-debrief">
+      <p class="eyebrow">// demo complete</p>
+      <h1>What you just did — and what it measures</h1>
+      <div class="stat-grid" id="statGrid"></div>
+      <h2>How the real experiment works</h2>
+      <ul>
+        <li><strong>Design:</strong> N = 360, between-subject. The waiting task ran 15 rounds (40 s each); Delay participants then faced an unexpected extra 8-minute wait before the reveal. Delay was randomly assigned, so its effect on valuation is causal.</li>
+        <li><strong>Anticipation measures (triangulated):</strong> willingness to pay to see the soil sample (primary, BDM-elicited, non-instrumental by design), frequency of checking the mining status, and self-reported excitement in the post-task survey.</li>
+        <li><strong>Headline result:</strong> delays reduce the valuation of the gold nugget on average — but the effect is concentrated among <em>low-anticipation</em> participants. High-anticipation participants barely discount at all: anticipatory utility buffers against consumption delays.</li>
+      </ul>
+      <p style="margin-top:1.2rem;">
+        <a class="btn-gold" href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5821582" target="_blank" rel="noopener">Read the paper (SSRN)</a>
+        &nbsp; <button class="btn-outline" id="replayOther" type="button"></button>
+        &nbsp; <a class="btn-outline" href="../experiments.html">← Back to experiments</a>
+      </p>
+    </section>
+
+  </div>
+
+  <div class="footer-note">
+    Condensed replica of the oTree experiment in <em>Anticipatory Utility as a Buffer Against Consumption Delays</em> (Lingguo Xu).
+    For demonstration only — this page collects no data. &nbsp;·&nbsp; <a href="../index.html">lingguoxu.com</a>
+  </div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ── state ── */
+  var S = {
+    treatment: Math.random() < 0.5 ? 1 : 2,   // 1 = No-Delay, 2 = Delay
+    earnings: 0,
+    wtp: null, bdmAttempts: 0,
+    checks: 0, msOnMiner: 0,
+    wta: null, buyerOffer: null, goldValue: null, sold: null,
+    excite: null
+  };
+  var ROUNDS = [
+    { q: 'Which travels faster? Hot or Cold?',
+      a: 'Hot is faster, because you can catch a cold.',
+      trivia: '<b>The Victorian Gold Rush</b>: The Victorian Gold Rush was one of the largest gold rushes in history, beginning in 1851 when gold was discovered near Ballarat and Bendigo in Victoria, Australia. This discovery attracted prospectors from around the world and significantly contributed to the economic development of Australia.',
+      fill: 15 },
+    { q: 'What can you hold without ever touching or using your hands?',
+      a: 'Your breath!',
+      trivia: '<b>Golden Age of Gold</b>: The Australian gold rushes of the 19th century were so productive that Australia was the world’s leading gold producer by the 1850s.',
+      fill: 55 },
+    { q: 'What is full of holes but can still hold water?',
+      a: 'A sponge',
+      trivia: '<b>The Hand of Faith</b>: The Hand of Faith nugget, found in 1980 near Kingower, Victoria, by Kevin Hillier using a metal detector, is one of the largest gold nuggets ever found with a metal detector and weighed over 27 kilograms.',
+      fill: 85 }
+  ];
+  var ROUND_SECONDS = 30;
+  var curRound = 0, baseRounds = 2, inDelayRound = false;
+  var timerId = null, remaining = 0;
+  var minerOpenedAt = null;
+
+  /* ── helpers ── */
+  function $(id) { return document.getElementById(id); }
+  function show(name) {
+    var scrs = document.querySelectorAll('.screen');
+    for (var i = 0; i < scrs.length; i++) scrs[i].classList.remove('active');
+    $('scr-' + name).classList.add('active');
+    window.scrollTo(0, 0);
+  }
+  function setEarnings(v) {
+    S.earnings = v;
+    var els = document.querySelectorAll('.earn');
+    for (var i = 0; i < els.length; i++) els[i].textContent = v;
+  }
+  function fmt(sec) {
+    var m = Math.floor(sec / 60), s = sec % 60;
+    return m + ':' + (s < 10 ? '0' : '') + s;
+  }
+  function randInt(lo, hiExcl) { return lo + Math.floor(Math.random() * (hiExcl - lo)); }
+
+  /* generic Next buttons */
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-next]');
+    if (t) show(t.getAttribute('data-next'));
+  });
+
+  /* tabbed instruction screens: .btn-tab moves within the section's .tab list */
+  function initTabs(sectionId) {
+    var sec = $(sectionId);
+    var tabs = sec.querySelectorAll('.tab');
+    var idx = 0;
+    function render() {
+      for (var i = 0; i < tabs.length; i++) tabs[i].style.display = i === idx ? 'block' : 'none';
+      window.scrollTo(0, 0);
+    }
+    var btns = sec.querySelectorAll('.btn-tab');
+    for (var b = 0; b < btns.length; b++) {
+      btns[b].addEventListener('click', function () {
+        idx += parseInt(this.getAttribute('data-offset'), 10);
+        if (idx < 0) idx = 0;
+        if (idx > tabs.length - 1) idx = tabs.length - 1;
+        render();
+      });
+    }
+    render();
+  }
+  initTabs('scr-inst1');
+  initTabs('scr-bdm');
+  initTabs('scr-soil');
+
+  /* ── notes toggle + jump ── */
+  $('notesToggle').addEventListener('click', function () {
+    document.body.classList.toggle('notes-on');
+    $('notesState').textContent = document.body.classList.contains('notes-on') ? 'ON' : 'OFF';
+  });
+  $('jumpDebrief').addEventListener('click', function () {
+    if (timerId) { clearInterval(timerId); timerId = null; }
+    buildDebrief();
+    show('debrief');
+  });
+
+  /* ── intro → pledge ── */
+  $('startBtn').addEventListener('click', function () {
+    setEarnings(250);  // participation fee credited at consent in the real study
+    show('pledge');
+  });
+
+  /* ── attention pledge ── */
+  function resetPledgeMsgs() { $('pledgeStart').style.display = 'none'; $('pledgeRedo').style.display = 'none'; }
+  ['pl1','pl2','pl3'].forEach(function (id) { $(id).addEventListener('input', resetPledgeMsgs); });
+  $('pledgeSubmit').addEventListener('click', function () {
+    var ok = $('pl1').checked && $('pl2').checked && $('pl3').checked;
+    $('pledgeStart').style.display = ok ? 'block' : 'none';
+    $('pledgeRedo').style.display = ok ? 'none' : 'block';
+  });
+
+  /* ── BDM comprehension (tab 4 of scr-bdm) ── */
+  $('bdmCheck').addEventListener('click', function () {
+    var v = parseInt($('bdmInput').value, 10);
+    $('bdmLow').style.display = 'none'; $('bdmHigh').style.display = 'none'; $('bdmGood').style.display = 'none';
+    if (isNaN(v) || v < 0 || v > 100) { alert('Please fill in a number between 0 and 100.'); return; }
+    if (v === 70) {
+      $('bdmGood').style.display = 'block';
+      $('bdmNext').style.visibility = 'visible';
+    } else {
+      S.bdmAttempts += 1;
+      $(v < 70 ? 'bdmLow' : 'bdmHigh').style.display = 'block';
+    }
+  });
+  $('bdmInput').addEventListener('input', function () {
+    $('bdmLow').style.display = 'none'; $('bdmHigh').style.display = 'none'; $('bdmGood').style.display = 'none';
+  });
+
+  /* ── soil-sample WTP (0–50) ── */
+  $('wtpSubmit').addEventListener('click', function () {
+    var v = parseInt($('wtpInput').value, 10);
+    if (isNaN(v) || v < 0 || v > 50) { $('wtpErr').style.display = 'block'; return; }
+    $('wtpErr').style.display = 'none';
+    S.wtp = v;
+    show('wtpresult');
+  });
+
+  /* ── ready → task rounds ── */
+  $('readyNext').addEventListener('click', function () { startRound(0); });
+
+  /* ── task round machinery ── */
+  function startRound(idx) {
+    curRound = idx;
+    inDelayRound = (idx >= baseRounds);
+    var r = ROUNDS[idx];
+    $('roundNum').textContent = inDelayRound ? baseRounds + '+' : (idx + 1);
+    $('roundTot').textContent = baseRounds;
+    $('taskQ').innerHTML = '<b>Question</b>: ' + r.q;
+    $('taskA').textContent = '';
+    $('checkAnswer').disabled = false;
+    $('trivia').innerHTML = r.trivia;
+    $('taskBlock').style.display = 'block';
+    $('minerBlock').style.display = 'none';
+    $('nuggetFill').style.clipPath = 'inset(0 100% 0 0)';
+    $('nuggetEdge').style.left = '0%';
+    show('task');
+    remaining = ROUND_SECONDS;
+    $('timerT').textContent = fmt(remaining);
+    if (timerId) clearInterval(timerId);
+    timerId = setInterval(tick, 1000);
+  }
+  function tick() {
+    remaining -= 1;
+    if (remaining <= 0) { endRound(); return; }
+    $('timerT').textContent = fmt(remaining);
+  }
+  function closeMinerView() {
+    if (minerOpenedAt !== null) { S.msOnMiner += Date.now() - minerOpenedAt; minerOpenedAt = null; }
+    $('minerBlock').style.display = 'none';
+    $('taskBlock').style.display = 'block';
+  }
+  function endRound() {
+    clearInterval(timerId); timerId = null;
+    closeMinerView();
+    if (!inDelayRound && curRound + 1 < baseRounds) { startRound(curRound + 1); return; }
+    if (!inDelayRound && S.treatment === 2) { show('delay'); return; }
+    show('complete');
+  }
+  $('checkAnswer').addEventListener('click', function () {
+    var r = ROUNDS[curRound];
+    $('taskA').innerHTML = '<b>Answer</b>: ' + r.a;
+    this.disabled = true;
+  });
+  $('checkMiner').addEventListener('click', function () {
+    S.checks += 1;
+    minerOpenedAt = Date.now();
+    $('taskBlock').style.display = 'none';
+    $('minerBlock').style.display = 'block';
+    var p = ROUNDS[curRound].fill;
+    $('nuggetPct').textContent = 'Mining progress: ' + p + '%';
+    requestAnimationFrame(function () {
+      $('nuggetFill').style.clipPath = 'inset(0 ' + (100 - p) + '% 0 0)';
+      $('nuggetEdge').style.left = p + '%';
+    });
+    window.scrollTo(0, 0);
+  });
+  $('backToTask').addEventListener('click', closeMinerView);
+  var lastSkip = 0;
+  $('skipWait').addEventListener('click', function () {
+    var now = Date.now();
+    if (now - lastSkip < 600) return;   // debounce double-clicks
+    lastSkip = now;
+    if (timerId) endRound();
+  });
+
+  /* ── delay screen → extra round ── */
+  $('delayNext').addEventListener('click', function () { startRound(2); });
+
+  /* ── reveal keep-reading ── */
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest('.kr');
+    if (!t) return;
+    $(t.getAttribute('data-show')).style.display = 'block';
+    t.parentElement.style.display = 'none';
+  });
+
+  /* ── WTA ── */
+  $('wtaSubmit').addEventListener('click', function () {
+    if (S.buyerOffer !== null) return;  // already resolved (double-click guard)
+    var v = parseInt($('wtaInput').value, 10);
+    if (isNaN(v) || v < 680 || v > 865) { $('wtaErr').style.display = 'block'; return; }
+    $('wtaErr').style.display = 'none';
+    S.wta = v;
+    S.buyerOffer = randInt(680, 865);
+    S.goldValue = randInt(680, 865);
+    var html;
+    if (S.buyerOffer < S.wta) {
+      S.sold = false;
+      setEarnings(S.earnings + S.goldValue);
+      html = '<p>The buyer wrote <b>' + S.buyerOffer + ' ECU</b> on the piece of paper, which is below the acceptable price you reported of <b>' + S.wta + ' ECU</b>. ' +
+             'As a result, you have kept the gold nugget and have not sold it to the buyer.</p>' +
+             '<p>It turns out that the gold is worth <b>' + S.goldValue + ' ECU</b>. This amount is now added to your total earnings from the experiment.</p>';
+    } else {
+      S.sold = true;
+      setEarnings(S.earnings + S.wta);
+      html = '<p>The buyer wrote <b>' + S.buyerOffer + ' ECU</b> on the piece of paper. This is above (or equal to) the acceptable price you reported, which was <b>' + S.wta + ' ECU</b>.</p>' +
+             '<p>As a result, the gold nugget has been sold to the buyer, and you will receive <b>' + S.wta + ' ECU</b>. This amount has now been added to your total earnings from the experiment.</p>';
+    }
+    $('outcomeBody').innerHTML = html;
+    $('surveyChecks').textContent = S.checks;
+    show('outcome');
+  });
+
+  /* ── survey flow ── */
+  $('survey1Next').addEventListener('click', function () {
+    show(S.treatment === 2 ? 'survey2' : 'survey3');
+  });
+  (function buildExcite() {
+    var g = $('exciteGroup'), html = '';
+    for (var i = 0; i <= 10; i++) html += '<button class="scalebtn" data-v="' + i + '" type="button">' + i + '</button>';
+    g.innerHTML = html;
+    g.addEventListener('click', function (e) {
+      var b = e.target.closest('.scalebtn');
+      if (!b) return;
+      var all = g.querySelectorAll('.scalebtn');
+      for (var i = 0; i < all.length; i++) all[i].classList.remove('sel');
+      b.classList.add('sel');
+      S.excite = parseInt(b.getAttribute('data-v'), 10);
+      $('exciteErr').style.display = 'none';
+    });
+  })();
+  $('survey3Next').addEventListener('click', function () {
+    if (S.excite === null) { $('exciteErr').style.display = 'block'; return; }
+    buildDebrief();
+    show('debrief');
+  });
+
+  /* ── debrief ── */
+  function stat(k, v) { return '<div class="stat"><div class="k">' + k + '</div><div class="v">' + v + '</div></div>'; }
+  function orDash(v, suffix) { return v === null ? '—' : v + (suffix || ''); }
+  function buildDebrief() {
+    var secs = (S.msOnMiner / 1000).toFixed(1);
+    var aud = (S.earnings / 50).toFixed(2);
+    var g = $('statGrid');
+    var outcomeTxt = S.buyerOffer === null ? '—'
+      : S.buyerOffer + ' ECU <small>' + (S.sold ? 'nugget sold at your price' : 'you kept the nugget (worth ' + S.goldValue + ' ECU)') + '</small>';
+    g.innerHTML =
+      stat('Your condition', (S.treatment === 1 ? 'No-Delay' : 'Delay') + ' <small>(randomly assigned)</small>') +
+      stat('WTP to see the soil sample', orDash(S.wtp, ' / 50 ECU') + ' <small>primary anticipation measure' + (S.bdmAttempts > 0 ? ' · ' + S.bdmAttempts + ' BDM training attempt' + (S.bdmAttempts > 1 ? 's' : '') + ' before passing' : '') + '</small>') +
+      stat('Times you checked the miner', S.checks + ' <small>' + secs + ' s watching — behavioural measure</small>') +
+      stat('Self-reported excitement', orDash(S.excite, ' / 10') + ' <small>survey measure</small>') +
+      stat('Your WTA for the nugget', orDash(S.wta, ' ECU') + ' <small>outcome measure</small>') +
+      stat('Buyer’s offer', outcomeTxt) +
+      stat('Demo earnings', S.earnings + ' ECU <small>≈ AU$' + aud + '</small>');
+    $('replayOther').textContent = 'Replay in the ' + (S.treatment === 1 ? 'Delay' : 'No-Delay') + ' condition';
+  }
+  $('replayOther').addEventListener('click', function () {
+    var other = S.treatment === 1 ? 2 : 1;
+    S = { treatment: other, earnings: 0, wtp: null, bdmAttempts: 0, checks: 0, msOnMiner: 0, wta: null, buyerOffer: null, goldValue: null, sold: null, excite: null };
+    $('wtpInput').value = ''; $('wtaInput').value = ''; $('bdmInput').value = '';
+    $('rv2').style.display = 'none'; $('rv3').style.display = 'none';
+    $('rv1').style.display = 'block';
+    var kr = document.querySelectorAll('.kr');
+    for (var i = 0; i < kr.length; i++) kr[i].parentElement.style.display = '';
+    var sel = document.querySelectorAll('.scalebtn.sel');
+    for (var j = 0; j < sel.length; j++) sel[j].classList.remove('sel');
+    setEarnings(250);
+    show('overview');
+  });
+
+  /* debug/testing hook (harmless in production) */
+  window.__demo = {
+    get state() { return { S: S, curRound: curRound, inDelayRound: inDelayRound, timerId: timerId, remaining: remaining }; },
+    forceTreatment: function (t) { S.treatment = t; }
+  };
+})();
+</script>
+</body>
+</html>

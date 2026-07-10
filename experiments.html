@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Experiments — Lingguo (Lin) Xu</title>
-  <meta name="description" content="Live and recent experiments by Lingguo (Lin) Xu — anticipatory utility, intertemporal choice, and decision-making. Built in oTree, deployed via Prolific.">
+  <meta name="description" content="Experiments by Lingguo (Lin) Xu — play interactive demos of the gold-mining anticipatory-utility experiment and the comparative-information experiment, plus current Prolific studies. Built in oTree.">
   <link rel="canonical" href="https://www.lingguoxu.com/experiments.html">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Experiments — Lingguo (Lin) Xu">
@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;0,700;1,400;1,600&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=20260709">
 </head>
 <body>
 <div class="site-wrap">
@@ -38,6 +38,8 @@
     <div class="sb-nav-label">On this page</div>
     <ul class="sb-nav">
       <li><a href="#exp-intro">Overview</a></li>
+      <li><a href="#exp-goldmine">Gold-Mining Game (play it)</a></li>
+      <li><a href="#exp-ekx">Comparative Information (play it)</a></li>
       <li><a href="#exp-ait13">AIT v1.3 (active)</a></li>
       <li><a href="#exp-ait12">AIT v1.2</a></li>
       <li><a href="#exp-stack">Tech Stack</a></li>
@@ -63,8 +65,73 @@
     <section class="hero">
       <p class="hero-eyebrow">// live experiments &amp; field materials</p>
       <h1>Experiments</h1>
-      <p class="hero-sub">All studies are built and deployed by me end-to-end.</p>
-      <p class="hero-inst">oTree · Prolific · UK + AU samples</p>
+      <p class="hero-sub">All studies are built and deployed by me end-to-end — and two of them are playable right on this site.</p>
+      <p class="hero-inst">oTree · Lab (Melbourne) &amp; online (Prolific UK/AU)</p>
+    </section>
+
+    <!-- Gold-Mining Game (JMP) -->
+    <section class="sec alt-bg" id="exp-goldmine">
+      <div class="sec-inner">
+        <p class="sec-label">Job Market Paper · Playable Demo</p>
+        <h2 class="sec-heading">The Gold-Mining Game</h2>
+
+        <div class="exp-card">
+          <div class="exp-header">
+            <p class="exp-meta">Anticipatory Utility as a Buffer Against Consumption Delays · solo-authored</p>
+            <span class="badge badge-green">Play it now</span>
+          </div>
+          <h3 class="exp-title">Waiting for Gold: Delay, Anticipation &amp; Valuation</h3>
+          <p class="exp-desc">
+            A miner digs for gold on your behalf. While you wait, you solve brain teasers — and every time you click
+            <em>"See how the miner is doing"</em>, that click is data: checking has no instrumental value, so checking frequency and viewing time
+            reveal anticipatory utility. Anticipation is measured primarily by an incentivized <strong>willingness to pay for early information</strong>,
+            and the delay before the nugget's value is revealed is <strong>randomly assigned</strong>. The headline result: delays reduce valuations —
+            but only for low-anticipation participants. High anticipators barely discount at all.
+          </p>
+          <div class="exp-tech">
+            <strong>Engine:</strong> oTree v5 (Python) &nbsp;·&nbsp;
+            <strong>N:</strong> 360, University of Melbourne lab &nbsp;·&nbsp;
+            <strong>Design:</strong> between-subject random delay &nbsp;·&nbsp;
+            <strong>Elicitations:</strong> BDM (WTP for information; WTA for the nugget)
+          </div>
+          <div class="link-row">
+            <a href="demos/gold-mining.html" class="lnk lnk-play">▶ Play the demo (~4 min)</a>
+            <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5821582" target="_blank" rel="noopener" class="lnk lnk-pdf">SSRN</a>
+            <a href="index.html" class="lnk lnk-ghost">Paper details</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Comparative information (EKX) -->
+    <section class="sec" id="exp-ekx">
+      <p class="sec-label">Co-authored · Playable Demo</p>
+      <h2 class="sec-heading">The Comparative-Information Experiment</h2>
+
+      <div class="exp-card">
+        <div class="exp-header">
+          <p class="exp-meta">Gender and the Demand for Comparative Information · with Nisvan Erkal &amp; Boon Han Koh</p>
+          <span class="badge badge-green">Play it now</span>
+        </div>
+        <h3 class="exp-title">Who Wants to Know Where They Rank?</h3>
+        <p class="exp-desc">
+          Participants solve pattern-matching puzzles, state incentivized beliefs about their absolute performance and their rank
+          (a full five-interval distribution under a binarized scoring rule), and receive a <em>deliberately noisy</em> score. Then the key decision:
+          <strong>which rank group would you pay to learn about — and how much?</strong> When the information has no instrumental value, women who
+          believe themselves to be average performers avoid upward comparisons; facing the prospect of doing the task again, they seek them more
+          than men. Revise &amp; resubmit at the <em>Journal of Economic Psychology</em>.
+        </p>
+        <div class="exp-tech">
+          <strong>Engine:</strong> oTree v5 (Python) &nbsp;·&nbsp;
+          <strong>Lab:</strong> University of Melbourne &nbsp;·&nbsp;
+          <strong>Design:</strong> noisy feedback × instrumental vs non-instrumental information &nbsp;·&nbsp;
+          <strong>Elicitations:</strong> binarized scoring rule, BDM (WTP for information)
+        </div>
+        <div class="link-row">
+          <a href="demos/comparative-information.html" class="lnk lnk-play">▶ Play the demo (~5 min)</a>
+          <a href="index.html" class="lnk lnk-ghost">Paper details</a>
+        </div>
+      </div>
     </section>
 
     <!-- AIT 1.3 -->
